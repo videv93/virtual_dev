@@ -1,6 +1,9 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import type { ConversationMessage } from '@virtual-dev/shared';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export type LLMProvider = 'anthropic' | 'openrouter' | 'gemini';
 
@@ -39,7 +42,7 @@ export class LLMProvider {
   private initialize(): void {
     // Determine provider from env
     const providerEnv = (process.env.LLM_PROVIDER || 'anthropic').toLowerCase();
-    
+
     if (providerEnv === 'openrouter') {
       this.provider = 'openrouter';
       this.apiKey = process.env.OPENROUTER_API_KEY || '';
@@ -58,10 +61,10 @@ export class LLMProvider {
 
     if (!this.apiKey || this.apiKey === 'your_api_key_here') {
       console.warn(`⚠️  ${this.provider} API key not found. LLM chat will be disabled.`);
-      const envVar = 
+      const envVar =
         this.provider === 'openrouter' ? 'OPENROUTER_API_KEY' :
-        this.provider === 'gemini' ? 'GEMINI_API_KEY' :
-        'ANTHROPIC_API_KEY';
+          this.provider === 'gemini' ? 'GEMINI_API_KEY' :
+            'ANTHROPIC_API_KEY';
       console.warn(`   Set ${envVar} in .env to enable NPC conversations.`);
       return;
     }
@@ -193,7 +196,7 @@ export class LLMProvider {
     // Start chat session with system prompt
     const chat = model.startChat({
       history: geminiHistory.slice(0, -1), // All but last message
-      systemInstruction: systemPrompt,
+      systemInstruction: { parts: [{ text: systemPrompt }] },
     });
 
     // Get the last user message
@@ -310,7 +313,7 @@ export class LLMProvider {
     // Start chat session with system prompt
     const chat = model.startChat({
       history: geminiHistory.slice(0, -1), // All but last message
-      systemInstruction: systemPrompt,
+      systemInstruction: { parts: [{ text: systemPrompt }] },
     });
 
     // Get the last user message

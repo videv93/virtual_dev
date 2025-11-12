@@ -7,10 +7,12 @@ import {
   JoinResponse,
   MovePayload,
   PositionUpdatePayload,
+  ProximityPayload,
   MAP_WIDTH,
   MAP_HEIGHT,
 } from '@virtual-dev/shared';
 import { redisService } from './redis.service';
+import { proximityService } from './proximity.service';
 import { generateUsername, generateColor } from '../utils/username-generator';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -137,6 +139,64 @@ export class SocketService {
     };
 
     socket.broadcast.emit(SocketEvents.POSITION_UPDATE, positionUpdate);
+
+    // Check proximity changes
+    const allUsers = await redisService.getAllUsers();
+    const { entered, exited } = proximityService.updateProximity(user, allUsers);
+
+    // Emit proximity enter events
+    entered.forEach((nearUser) => {
+      const distance = this.calculateDistance(user.position, nearUser.position);
+
+      // Notify the moving user about entering proximity
+      const enterPayload: ProximityPayload = {
+        userId: user.id,
+        targetId: nearUser.id,
+        distance,
+      };
+      socket.emit(SocketEvents.PROXIMITY_ENTER, enterPayload);
+
+      // Notify the other user about being entered
+      const reverseEnterPayload: ProximityPayload = {
+        userId: nearUser.id,
+        targetId: user.id,
+        distance,
+      };
+      this.io?.to(this.getUserSocketId(nearUser.id)).emit(SocketEvents.PROXIMITY_ENTER, reverseEnterPayload);
+    });
+
+    // Emit proximity exit events
+    exited.forEach((exitedUserId) => {
+      // Notify the moving user about exiting proximity
+      const exitPayload: ProximityPayload = {
+        userId: user.id,
+        targetId: exitedUserId,
+        distance: -1, // Distance not relevant for exit
+      };
+      socket.emit(SocketEvents.PROXIMITY_EXIT, exitPayload);
+
+      // Notify the other user about being exited
+      const reverseExitPayload: ProximityPayload = {
+        userId: exitedUserId,
+        targetId: user.id,
+        distance: -1,
+      };
+      this.io?.to(this.getUserSocketId(exitedUserId)).emit(SocketEvents.PROXIMITY_EXIT, reverseExitPayload);
+    });
+  }
+
+  private calculateDistance(pos1: { x: number; y: number }, pos2: { x: number; y: number }): number {
+    const dx = pos1.x - pos2.x;
+    const dy = pos1.y - pos2.y;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  private getUserSocketId(userId: string): string {
+    // Find socket ID for a given user ID
+    // This is a simplified version - in production, you'd maintain a userId -> socketId mapping
+    const sockets = Array.from(this.io?.sockets.sockets.values() || []);
+    const socket = sockets.find((s) => s.data.userId === userId);
+    return socket?.id || '';
   }
 
   private async handleDisconnect(socket: Socket): Promise<void> {
@@ -148,6 +208,9 @@ export class SocketService {
 
     // Remove user from Redis
     await redisService.deleteUser(userId);
+
+    // Remove user from proximity tracking
+    proximityService.removeUser(userId);
 
     // Broadcast to others that user left
     socket.broadcast.emit(SocketEvents.USER_LEFT, { userId });

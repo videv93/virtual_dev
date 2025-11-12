@@ -147,9 +147,20 @@ export interface SupabaseNPCConversation {
   updated_at: string;
 }
 
+// Toast Notification Types
+export type ToastType = 'success' | 'error' | 'warning' | 'info';
+
+export interface Toast {
+  id: string;
+  type: ToastType;
+  message: string;
+  duration?: number; // in milliseconds, default 3000
+}
+
 // Constants
 export const MAP_WIDTH = 800;
 export const MAP_HEIGHT = 600;
 export const PROXIMITY_RADIUS = 150;
 export const MOVEMENT_SPEED = 200;
 export const POSITION_UPDATE_RATE = 10; // updates per second
+export const TOAST_DEFAULT_DURATION = 3000; // 3 seconds

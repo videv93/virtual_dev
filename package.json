@@ -1,0 +1,27 @@
+{
+  "name": "virtual-dev",
+  "version": "1.0.0",
+  "description": "A 2D virtual space for developers to hang out and interact with AI NPCs",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --parallel --filter \"./apps/*\" dev",
+    "build": "pnpm --filter \"./packages/*\" build && pnpm --filter \"./apps/*\" build",
+    "lint": "pnpm --recursive lint",
+    "clean": "pnpm --recursive clean && rm -rf node_modules",
+    "backend:dev": "pnpm --filter backend dev",
+    "frontend:dev": "pnpm --filter frontend dev",
+    "shared:dev": "pnpm --filter @virtual-dev/shared dev"
+  },
+  "keywords": [
+    "virtual",
+    "2d",
+    "multiplayer",
+    "ai",
+    "npc"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}

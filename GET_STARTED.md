@@ -94,9 +94,11 @@ A web platform where developers can:
 - 🎮 Phaser.js (2D game engine)
 - 📡 Supabase Realtime
 - 🤖 Claude API integration
+- 📦 pnpm workspaces (monorepo management)
 
 ### Tools Needed:
 - Node.js 20+
+- pnpm (package manager)
 - Git
 - Code editor (VS Code recommended)
 - Browser with DevTools
@@ -104,6 +106,28 @@ A web platform where developers can:
 ---
 
 ## Critical Setup Tasks (Phase 0)
+
+### 0. Monorepo Setup (30 minutes) - DO THIS FIRST!
+**📚 Read:** `docs/MONOREPO_SETUP.md`
+
+This project uses a **pnpm workspaces monorepo**:
+```
+virtual-dev/
+├── apps/
+│   ├── backend/       # Node.js + Socket.io
+│   └── frontend/      # React + Phaser.js
+└── packages/
+    └── shared/        # Shared TypeScript types
+```
+
+**Why:** Share types between frontend and backend, atomic commits, simpler workflow.
+
+**Steps:**
+1. Install pnpm: `npm install -g pnpm`
+2. Follow `docs/MONOREPO_SETUP.md` step-by-step
+3. Create workspace structure
+4. Set up shared types package
+5. Test with: `pnpm install && pnpm dev`
 
 ### 1. Supabase Account (15 minutes)
 - Go to https://supabase.com
@@ -114,24 +138,31 @@ A web platform where developers can:
 
 **Why Critical:** Required for Sprint 3 (chat) and Sprint 4 (NPCs)
 
-### 2. Project Structure (30 minutes)
-```
-virtual-dev/
-├── backend/          # Node.js + Socket.io server
-├── frontend/         # React + Phaser.js app
-├── docs/            # Already exists
-└── README.md
-```
+### 2. Shared Types Package (20 minutes)
+**Location:** `packages/shared/`
+
+This package contains all TypeScript interfaces shared between backend and frontend:
+- `User`, `Position`, `ChatMessage`, `NPCConfig`
+- WebSocket event types
+- Full type safety across the stack
+
+**Setup:** Covered in `docs/MONOREPO_SETUP.md`
 
 ### 3. Backend Setup (1 hour)
-- Initialize Node.js with TypeScript
-- Install: express, socket.io, cors, dotenv, uuid, redis
+**Location:** `apps/backend/`
+
+- Initialize with `pnpm --filter backend add <dependencies>`
+- Install: express, socket.io, cors, dotenv, uuid, redis, @anthropic-ai/sdk
+- Link shared types: `import { User } from '@virtual-dev/shared'`
 - Create basic server
 - Set up Redis (local or cloud)
 
 ### 4. Frontend Setup (1 hour)
-- Create React app with Vite + TypeScript
+**Location:** `apps/frontend/`
+
+- Create with Vite + TypeScript
 - Install: phaser, socket.io-client, @supabase/supabase-js, zustand, tailwind
+- Link shared types: `import { User, ChatMessage } from '@virtual-dev/shared'`
 - Configure Tailwind CSS
 - Set up folder structure
 

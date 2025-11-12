@@ -17,8 +17,10 @@ Virtual Dev is a 2D web-based platform where developers can:
 - Interact with AI-powered NPCs (using Claude API)
 
 ### Tech Stack
+- **Monorepo:** pnpm workspaces
 - **Frontend:** React 18 + TypeScript + Phaser.js 3 + Socket.io-client + Supabase Client
 - **Backend:** Node.js 20 + Express + Socket.io + TypeScript
+- **Shared:** TypeScript types package (shared between frontend/backend)
 - **Database:** Supabase (PostgreSQL + Realtime)
 - **Cache:** Redis
 - **AI:** Anthropic Claude API
@@ -39,11 +41,24 @@ Virtual Dev is a 2D web-based platform where developers can:
 **Goal:** Set up all infrastructure and development environment
 
 #### Tasks:
-1. **Repository Setup**
-   - [ ] Create GitHub repository structure
-   - [ ] Set up branch strategy (main, dev, staging)
-   - [ ] Configure .gitignore files
-   - [ ] Create initial README
+1. **Monorepo Setup** (CRITICAL - DO THIS FIRST)
+   - [ ] Install pnpm globally: `npm install -g pnpm`
+   - [ ] Follow `docs/MONOREPO_SETUP.md` for complete setup
+   - [ ] Create project structure with pnpm workspaces:
+     ```
+     virtual-dev/
+     ├── apps/
+     │   ├── backend/       # Node.js server
+     │   └── frontend/      # React app
+     ├── packages/
+     │   └── shared/        # Shared TypeScript types
+     ├── docs/
+     ├── package.json       # Root package.json
+     └── pnpm-workspace.yaml
+     ```
+   - [ ] Set up shared types package (`@virtual-dev/shared`)
+   - [ ] Configure workspace scripts in root package.json
+   - [ ] Test with: `pnpm install` and `pnpm dev`
 
 2. **Supabase Setup** (CRITICAL)
    - [ ] Create Supabase account
@@ -57,71 +72,28 @@ Virtual Dev is a 2D web-based platform where developers can:
    - [ ] Get API keys (Project URL + anon key)
    - [ ] Test connection with sample insert
 
-3. **Backend Project Setup**
-   - [ ] Initialize Node.js project with TypeScript
-   - [ ] Install dependencies: express, socket.io, cors, dotenv, uuid, redis
+3. **Backend Setup (in apps/backend/)**
+   - [ ] Already initialized if you followed `docs/MONOREPO_SETUP.md`
+   - [ ] Install dependencies: `pnpm --filter backend add express socket.io cors dotenv uuid redis @anthropic-ai/sdk`
+   - [ ] Add @virtual-dev/shared: `pnpm --filter backend add @virtual-dev/shared@workspace:*`
    - [ ] Configure tsconfig.json
-   - [ ] Create folder structure:
-     ```
-     backend/
-     ├── src/
-     │   ├── server.ts
-     │   ├── websocket/
-     │   │   └── handler.ts
-     │   ├── services/
-     │   │   ├── sessionService.ts
-     │   │   └── npcService.ts
-     │   ├── utils/
-     │   │   └── usernameGenerator.ts
-     │   ├── config/
-     │   │   └── redis.ts
-     │   └── types/
-     │       └── index.ts
-     ├── package.json
-     ├── tsconfig.json
-     └── .env
-     ```
-   - [ ] Create .env template with required variables
+   - [ ] Create .env from .env.example
    - [ ] Set up Redis connection (local or cloud)
+   - [ ] Import shared types: `import { User, Position } from '@virtual-dev/shared'`
 
-4. **Frontend Project Setup**
-   - [ ] Create React project with Vite + TypeScript
-   - [ ] Install dependencies: phaser, socket.io-client, @supabase/supabase-js, zustand, tailwind
+4. **Frontend Setup (in apps/frontend/)**
+   - [ ] Already initialized if you followed `docs/MONOREPO_SETUP.md`
+   - [ ] Install dependencies: `pnpm --filter frontend add phaser socket.io-client @supabase/supabase-js zustand`
+   - [ ] Add @virtual-dev/shared: `pnpm --filter frontend add @virtual-dev/shared@workspace:*`
    - [ ] Configure Tailwind CSS
-   - [ ] Create folder structure:
-     ```
-     frontend/
-     ├── src/
-     │   ├── App.tsx
-     │   ├── main.tsx
-     │   ├── components/
-     │   │   ├── ChatPanel.tsx
-     │   │   ├── ConnectionStatus.tsx
-     │   │   └── UserList.tsx
-     │   ├── game/
-     │   │   ├── GameScene.ts
-     │   │   ├── PhaserGame.tsx
-     │   │   └── config.ts
-     │   ├── store/
-     │   │   └── gameStore.ts
-     │   ├── services/
-     │   │   ├── socket.ts
-     │   │   └── chatService.ts
-     │   ├── lib/
-     │   │   └── supabase.ts
-     │   ├── utils/
-     │   │   └── session.ts
-     │   └── types/
-     │       └── index.ts
-     ├── .env.local
-     └── tailwind.config.js
-     ```
+   - [ ] Create .env.local from .env.local.example
+   - [ ] Import shared types: `import { User, ChatMessage } from '@virtual-dev/shared'`
 
 5. **Development Tools**
    - [ ] Set up ESLint + Prettier
-   - [ ] Configure hot reload for both backend and frontend
+   - [ ] Configure hot reload: `pnpm dev` (runs both backend + frontend)
    - [ ] Set up testing framework (Jest/Vitest)
-   - [ ] Create npm scripts for development
+   - [ ] Build shared types on changes: `pnpm --filter @virtual-dev/shared dev` (watch mode)
 
 **Deliverable:** Working development environment with all tools installed
 

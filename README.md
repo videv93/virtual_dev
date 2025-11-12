@@ -17,13 +17,19 @@
 
 ### 🚀 Start Here
 
-1. **[QUICK_START.md](docs/QUICK_START.md)** ⭐ START HERE
+1. **[MONOREPO_SETUP.md](docs/MONOREPO_SETUP.md)** ⭐ START HERE FIRST
+   - pnpm workspaces monorepo setup
+   - Project structure with shared types
+   - Complete setup instructions
+   - Perfect for: All developers (REQUIRED)
+
+2. **[QUICK_START.md](docs/QUICK_START.md)** ⭐ AFTER MONOREPO SETUP
    - Get running locally in 30 minutes
    - Step-by-step setup guide
    - Test chat and multi-user features
    - Perfect for: First-time developers
 
-2. **[project_summary.md](docs/project_summary.md)** 
+3. **[project_summary.md](docs/project_summary.md)**
    - Executive overview
    - Timeline and costs
    - Success metrics
@@ -31,20 +37,20 @@
 
 ### 📋 Planning & Management
 
-3. **[virtual_dev_agile_plan.md](docs/virtual_dev_agile_plan.md)** 
+4. **[virtual_dev_agile_plan.md](docs/virtual_dev_agile_plan.md)** 
    - Complete 6-sprint plan (12 weeks)
    - 24 user stories with acceptance criteria
    - Sprint goals and velocities
    - Agile ceremonies defined
    - Perfect for: Product owners, scrum masters
 
-4. **[virtual_dev_jira_import.csv](virtual_dev_jira_import.csv)**
+5. **[virtual_dev_jira_import.csv](virtual_dev_jira_import.csv)**
    - Ready-to-import user stories
    - Import into Jira/Linear/ClickUp
    - All sprints, epics, and priorities
    - Perfect for: Setting up project board
 
-5. **[sprint_dashboard_template.md](docs/sprint_dashboard_template.md)**
+6. **[sprint_dashboard_template.md](docs/sprint_dashboard_template.md)**
    - Daily tracking template
    - Burndown charts
    - Standup notes
@@ -53,7 +59,7 @@
 
 ### 🏗️ Technical Documentation
 
-6. **[virtual_dev_architecture.md](docs/virtual_dev_architecture.md)**
+7. **[virtual_dev_architecture.md](docs/virtual_dev_architecture.md)**
    - System architecture diagram
    - Tech stack details
    - Data models and schemas
@@ -61,20 +67,20 @@
    - Performance optimizations
    - Perfect for: Developers, architects
 
-7. **[supabase_setup_guide.md](docs/supabase_setup_guide.md)** 
+8. **[supabase_setup_guide.md](docs/supabase_setup_guide.md)** 
    - Complete Supabase setup walkthrough
    - Database table creation
    - Row-level security policies
    - Frontend integration code
    - Perfect for: Backend developers
 
-8. **[why_supabase_realtime.md](docs/why_supabase_realtime.md)**
+9. **[why_supabase_realtime.md](docs/why_supabase_realtime.md)**
    - Comparison: Custom WebSocket vs Supabase
    - Cost analysis and benefits
    - Performance benchmarks
    - Perfect for: Technical decision makers
 
-9. **[phaser_guide.md](docs/phaser_guide.md)** ⭐
+10. **[phaser_guide.md](docs/phaser_guide.md)** ⭐
    - Complete Phaser.js 3 implementation guide
    - Scene setup and structure
    - Input handling (keyboard, mouse, click-to-move)
@@ -83,7 +89,7 @@
    - Performance optimization techniques
    - Perfect for: Frontend developers building the game
 
-10. **[integration_guide.md](docs/integration_guide.md)** ⭐ NEW
+11. **[integration_guide.md](docs/integration_guide.md)** ⭐
     - **Complete integration of Phaser.js + Socket.io + Supabase**
     - Zustand state management
     - Socket.io for real-time movement
@@ -96,7 +102,7 @@
 
 ### 🛠️ Implementation Guides
 
-11. **[sprint1_implementation_checklist.md](docs/sprint1_implementation_checklist.md)**
+12. **[sprint1_implementation_checklist.md](docs/sprint1_implementation_checklist.md)**
     - Sprint 1 step-by-step guide
     - Code templates and examples
     - Testing checklist
@@ -114,28 +120,32 @@
 4. Import virtual_dev_jira_import.csv to project board
 
 ### 👨‍💻 Solo Developer
-1. [docs/QUICK_START.md](docs/QUICK_START.md) (get running)
-2. [docs/sprint1_implementation_checklist.md](docs/sprint1_implementation_checklist.md) (build Sprint 1)
-3. [docs/virtual_dev_architecture.md](docs/virtual_dev_architecture.md) (reference)
-4. [docs/supabase_setup_guide.md](docs/supabase_setup_guide.md) (when needed)
+1. [docs/MONOREPO_SETUP.md](docs/MONOREPO_SETUP.md) (workspace setup - FIRST!)
+2. [docs/QUICK_START.md](docs/QUICK_START.md) (get running)
+3. [docs/sprint1_implementation_checklist.md](docs/sprint1_implementation_checklist.md) (build Sprint 1)
+4. [docs/virtual_dev_architecture.md](docs/virtual_dev_architecture.md) (reference)
+5. [docs/supabase_setup_guide.md](docs/supabase_setup_guide.md) (when needed)
 
 ### 👥 Development Team
 **Team Lead:**
-1. [docs/virtual_dev_agile_plan.md](docs/virtual_dev_agile_plan.md)
-2. [docs/sprint_dashboard_template.md](docs/sprint_dashboard_template.md)
-3. Import virtual_dev_jira_import.csv
+1. [docs/MONOREPO_SETUP.md](docs/MONOREPO_SETUP.md) (workspace setup)
+2. [docs/virtual_dev_agile_plan.md](docs/virtual_dev_agile_plan.md)
+3. [docs/sprint_dashboard_template.md](docs/sprint_dashboard_template.md)
+4. Import virtual_dev_jira_import.csv
 
 **Backend Developer:**
-1. [docs/virtual_dev_architecture.md](docs/virtual_dev_architecture.md)
-2. [docs/supabase_setup_guide.md](docs/supabase_setup_guide.md)
-3. [docs/sprint1_implementation_checklist.md](docs/sprint1_implementation_checklist.md)
+1. [docs/MONOREPO_SETUP.md](docs/MONOREPO_SETUP.md) (workspace setup - FIRST!)
+2. [docs/virtual_dev_architecture.md](docs/virtual_dev_architecture.md)
+3. [docs/supabase_setup_guide.md](docs/supabase_setup_guide.md)
+4. [docs/sprint1_implementation_checklist.md](docs/sprint1_implementation_checklist.md)
 
 **Frontend Developer:**
-1. [docs/QUICK_START.md](docs/QUICK_START.md)
-2. [docs/phaser_guide.md](docs/phaser_guide.md) (essential for 2D implementation)
-3. [docs/integration_guide.md](docs/integration_guide.md) (connecting all systems together)
-4. [docs/virtual_dev_architecture.md](docs/virtual_dev_architecture.md) (frontend sections)
-5. [docs/sprint1_implementation_checklist.md](docs/sprint1_implementation_checklist.md)
+1. [docs/MONOREPO_SETUP.md](docs/MONOREPO_SETUP.md) (workspace setup - FIRST!)
+2. [docs/QUICK_START.md](docs/QUICK_START.md)
+3. [docs/phaser_guide.md](docs/phaser_guide.md) (essential for 2D implementation)
+4. [docs/integration_guide.md](docs/integration_guide.md) (connecting all systems together)
+5. [docs/virtual_dev_architecture.md](docs/virtual_dev_architecture.md) (frontend sections)
+6. [docs/sprint1_implementation_checklist.md](docs/sprint1_implementation_checklist.md)
 
 ### 🏢 Hiring Manager / Recruiter
 1. [docs/project_summary.md](docs/project_summary.md) (understand project)
@@ -147,7 +157,7 @@
 ## ⚡ Quick Decision Matrix
 
 ### Want to build it yourself?
-→ Start with **[docs/QUICK_START.md](docs/QUICK_START.md)**
+→ Start with **[docs/MONOREPO_SETUP.md](docs/MONOREPO_SETUP.md)** then **[docs/QUICK_START.md](docs/QUICK_START.md)**
 
 ### Want to hire a team?
 → Read **[docs/project_summary.md](docs/project_summary.md)** + **[docs/virtual_dev_agile_plan.md](docs/virtual_dev_agile_plan.md)**
@@ -231,19 +241,28 @@
 
 ## 🛠️ Tech Stack
 
-### Frontend
+### Project Structure
+- **Monorepo:** pnpm workspaces
+- **Shared Types:** TypeScript interfaces shared between frontend/backend
+
+### Frontend (apps/frontend/)
 - React 18 + TypeScript
-- Phaser.js (2D rendering)
+- Phaser.js 3 (2D rendering)
 - Socket.io-client (movement)
 - Supabase Client (chat)
 - Zustand (state)
 - Tailwind CSS
 
-### Backend
+### Backend (apps/backend/)
 - Node.js 20 + Express.js
 - Socket.io (movement only)
 - Supabase (chat + DB)
 - Redis (sessions)
+
+### Shared (packages/shared/)
+- TypeScript types and interfaces
+- WebSocket event definitions
+- Shared utilities
 
 ### Infrastructure
 - DigitalOcean or AWS
@@ -327,23 +346,29 @@
 
 ## 🚦 Getting Started
 
-### Option 1: Quick Start (30 mins)
-1. Read [docs/QUICK_START.md](docs/QUICK_START.md)
-2. Set up Supabase
-3. Run backend and frontend locally
-4. Test chat and multi-user
+### Prerequisites
+1. Install **pnpm**: `npm install -g pnpm`
+2. Read `docs/MONOREPO_SETUP.md` for project structure
 
-### Option 2: Full Planning (1 day)
+### Option 1: Quick Start (30 mins)
+1. Follow [docs/MONOREPO_SETUP.md](docs/MONOREPO_SETUP.md) to set up workspace
+2. Read [docs/QUICK_START.md](docs/QUICK_START.md)
+3. Set up Supabase
+4. Run: `pnpm install && pnpm dev`
+5. Test chat and multi-user
+
+### Option 2: Full Implementation (12 weeks)
+1. Read [GET_STARTED.md](GET_STARTED.md) for overview
+2. Follow [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) step-by-step
+3. Complete Phase 0 (Environment Setup)
+4. Execute 6 sprints over 12 weeks
+5. Deploy MVP!
+
+### Option 3: Full Planning (1 day)
 1. Read [docs/project_summary.md](docs/project_summary.md)
 2. Review [docs/virtual_dev_agile_plan.md](docs/virtual_dev_agile_plan.md)
 3. Import virtual_dev_jira_import.csv
 4. Schedule Sprint 1 planning
-
-### Option 3: Deep Dive (2-3 days)
-1. Read all documentation
-2. Understand architecture
-3. Set up development environment
-4. Begin Sprint 1 implementation
 
 ---
 
@@ -371,13 +396,15 @@
 
 **Your next steps:**
 
-1. ⬜ Read [docs/QUICK_START.md](docs/QUICK_START.md)
-2. ⬜ Set up development environment
-3. ⬜ Create Supabase project
-4. ⬜ Run backend and frontend
-5. ⬜ Test multi-user chat
-6. ⬜ Start Sprint 1 tasks
-7. ⬜ Deploy MVP in 12 weeks!
+1. ⬜ Install pnpm: `npm install -g pnpm`
+2. ⬜ Read [docs/MONOREPO_SETUP.md](docs/MONOREPO_SETUP.md)
+3. ⬜ Set up monorepo workspace structure
+4. ⬜ Read [docs/QUICK_START.md](docs/QUICK_START.md)
+5. ⬜ Create Supabase project
+6. ⬜ Run: `pnpm install && pnpm dev`
+7. ⬜ Test multi-user chat
+8. ⬜ Start Sprint 1 tasks
+9. ⬜ Deploy MVP in 12 weeks!
 
 ---
 

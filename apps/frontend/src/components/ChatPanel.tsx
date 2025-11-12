@@ -179,6 +179,10 @@ export function ChatPanel() {
             type="text"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={(e) => {
+              // Prevent Phaser from capturing keyboard events when typing
+              e.stopPropagation();
+            }}
             placeholder={
               nearbyUserList.length === 0
                 ? 'Get close to someone to chat...'

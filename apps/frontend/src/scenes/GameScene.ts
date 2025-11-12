@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { User, MAP_WIDTH, MAP_HEIGHT, MOVEMENT_SPEED } from '@virtual-dev/shared';
+import { User, MAP_WIDTH, MAP_HEIGHT, MOVEMENT_SPEED, PROXIMITY_RADIUS, NPCConfig } from '@virtual-dev/shared';
 import { useGameStore } from '../stores/gameStore';
 import { socketService } from '../services/socket.service';
 
@@ -14,10 +14,10 @@ export class GameScene extends Phaser.Scene {
   private currentUserSprite?: Phaser.GameObjects.Arc;
   private currentUserText?: Phaser.GameObjects.Text;
   private otherUsersSprites: Map<string, { sprite: Phaser.GameObjects.Arc; text: Phaser.GameObjects.Text }> = new Map();
+  private npcSprites: Map<string, { sprite: Phaser.GameObjects.Graphics; text: Phaser.GameObjects.Text; nameText: Phaser.GameObjects.Text }> = new Map();
   private lastPosition = { x: 0, y: 0 };
   private positionUpdateTimer = 0;
   private readonly POSITION_UPDATE_INTERVAL = 100; // ms (10 updates per second)
-  private needsRender = false;
 
   constructor() {
     super({ key: 'GameScene' });
@@ -36,6 +36,7 @@ export class GameScene extends Phaser.Scene {
     // Initial render
     this.renderCurrentUser();
     this.renderOtherUsers();
+    this.renderNPCs();
   }
 
   private createMap(): void {
@@ -84,9 +85,9 @@ export class GameScene extends Phaser.Scene {
   }
 
   private setupStoreSubscription(): void {
-    // Subscribe to user changes - always defer to update loop to avoid race conditions
+    // Subscribe to store changes - not used for rendering, just to ensure scene stays in sync
     useGameStore.subscribe(() => {
-      this.needsRender = true;
+      // Store changes are handled by always rendering in the update loop
     });
   }
 
@@ -182,33 +183,118 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
+  private renderNPCs(): void {
+    const npcs = useGameStore.getState().npcs;
+    const currentUser = useGameStore.getState().currentUser;
+
+    // Remove sprites for NPCs that no longer exist
+    this.npcSprites.forEach((value, npcId) => {
+      const npcExists = npcs.find((npc) => npc.id === npcId);
+      if (!npcExists) {
+        value.sprite.destroy();
+        value.text.destroy();
+        value.nameText.destroy();
+        this.npcSprites.delete(npcId);
+      }
+    });
+
+    // Add or update sprites for NPCs
+    npcs.forEach((npc: NPCConfig) => {
+      const existing = this.npcSprites.get(npc.id);
+
+      if (!existing) {
+        // Create NPC sprite (robot icon)
+        const graphics = this.add.graphics();
+
+        // Robot body (rectangle)
+        graphics.fillStyle(0x00d9ff, 1);
+        graphics.fillRect(npc.position.x - 12, npc.position.y - 12, 24, 24);
+
+        // Robot head
+        graphics.fillStyle(0x00a8cc, 1);
+        graphics.fillRect(npc.position.x - 8, npc.position.y - 18, 16, 10);
+
+        // Eyes
+        graphics.fillStyle(0xffffff, 1);
+        graphics.fillCircle(npc.position.x - 4, npc.position.y - 14, 2);
+        graphics.fillCircle(npc.position.x + 4, npc.position.y - 14, 2);
+
+        // Role label
+        const text = this.add.text(npc.position.x, npc.position.y + 20, npc.role, {
+          fontSize: '10px',
+          color: '#00d9ff',
+          backgroundColor: '#000000',
+          padding: { x: 4, y: 2 },
+        });
+        text.setOrigin(0.5, 0.5);
+
+        // Name label
+        const nameText = this.add.text(npc.position.x, npc.position.y - 28, npc.name, {
+          fontSize: '12px',
+          color: '#ffffff',
+          backgroundColor: '#000000',
+          padding: { x: 4, y: 2 },
+        });
+        nameText.setOrigin(0.5, 0.5);
+
+        this.npcSprites.set(npc.id, { sprite: graphics, text, nameText });
+      }
+
+      // Check proximity to current user
+      if (currentUser) {
+        const distance = Phaser.Math.Distance.Between(
+          currentUser.position.x,
+          currentUser.position.y,
+          npc.position.x,
+          npc.position.y
+        );
+
+        const { nearbyNPCs, addNearbyNPC, removeNearbyNPC } = useGameStore.getState();
+
+        if (distance <= PROXIMITY_RADIUS) {
+          if (!nearbyNPCs.has(npc.id)) {
+            addNearbyNPC(npc.id);
+            console.log(`🤖 Near NPC: ${npc.name}`);
+          }
+        } else {
+          if (nearbyNPCs.has(npc.id)) {
+            removeNearbyNPC(npc.id);
+          }
+        }
+      }
+    });
+  }
+
   update(_time: number, delta: number): void {
-    // Handle deferred rendering
-    if (this.needsRender) {
-      this.needsRender = false;
-      this.renderCurrentUser();
-      this.renderOtherUsers();
-    }
+    // Always render on every frame
+    this.renderCurrentUser();
+    this.renderOtherUsers();
+    this.renderNPCs();
 
     if (!this.currentUserSprite || !this.cursors || !this.wasd) return;
 
     const currentUser = useGameStore.getState().currentUser;
     if (!currentUser) return;
 
+    // Check if chat panel is open - if so, don't process movement input
+    const isChatPanelOpen = useGameStore.getState().isChatPanelOpen;
+
     let velocityX = 0;
     let velocityY = 0;
 
-    // Check input
-    if (this.cursors.left.isDown || this.wasd.A.isDown) {
-      velocityX = -1;
-    } else if (this.cursors.right.isDown || this.wasd.D.isDown) {
-      velocityX = 1;
-    }
+    // Check input only if chat panel is closed
+    if (!isChatPanelOpen) {
+      if (this.cursors.left.isDown || this.wasd.A.isDown) {
+        velocityX = -1;
+      } else if (this.cursors.right.isDown || this.wasd.D.isDown) {
+        velocityX = 1;
+      }
 
-    if (this.cursors.up.isDown || this.wasd.W.isDown) {
-      velocityY = -1;
-    } else if (this.cursors.down.isDown || this.wasd.S.isDown) {
-      velocityY = 1;
+      if (this.cursors.up.isDown || this.wasd.W.isDown) {
+        velocityY = -1;
+      } else if (this.cursors.down.isDown || this.wasd.S.isDown) {
+        velocityY = 1;
+      }
     }
 
     // Normalize diagonal movement
@@ -232,6 +318,9 @@ export class GameScene extends Phaser.Scene {
     currentUser.position.y = newY;
     useGameStore.getState().setCurrentUser(currentUser);
 
+    // Check NPC proximity on every frame
+    this.checkNPCProximity();
+
     // Send position update to server (throttled)
     this.positionUpdateTimer += delta;
     if (
@@ -242,5 +331,34 @@ export class GameScene extends Phaser.Scene {
       this.lastPosition = { x: newX, y: newY };
       this.positionUpdateTimer = 0;
     }
+  }
+
+  private checkNPCProximity(): void {
+    const currentUser = useGameStore.getState().currentUser;
+    const npcs = useGameStore.getState().npcs;
+    if (!currentUser) return;
+
+    npcs.forEach((npc: NPCConfig) => {
+      const distance = Phaser.Math.Distance.Between(
+        currentUser.position.x,
+        currentUser.position.y,
+        npc.position.x,
+        npc.position.y
+      );
+
+      const { nearbyNPCs, addNearbyNPC, removeNearbyNPC } = useGameStore.getState();
+
+      if (distance <= PROXIMITY_RADIUS) {
+        if (!nearbyNPCs.has(npc.id)) {
+          addNearbyNPC(npc.id);
+          console.log(`🤖 Entered proximity of ${npc.name}`);
+        }
+      } else {
+        if (nearbyNPCs.has(npc.id)) {
+          removeNearbyNPC(npc.id);
+          console.log(`🤖 Left proximity of ${npc.name}`);
+        }
+      }
+    });
   }
 }

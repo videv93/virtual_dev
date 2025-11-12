@@ -3,6 +3,8 @@ import { GameCanvas } from './components/GameCanvas';
 import { ConnectionStatus } from './components/ConnectionStatus';
 import { ChatPanel } from './components/ChatPanel';
 import { EncounterPopup } from './components/EncounterPopup';
+import { NPCChatModal } from './components/NPCChatModal';
+import { NPCProximityIndicator } from './components/NPCProximityIndicator';
 import { socketService } from './services/socket.service';
 import { supabaseService } from './services/supabase.service';
 import { useGameStore } from './stores/gameStore';
@@ -43,6 +45,8 @@ function App() {
       <ConnectionStatus />
       <ChatPanel />
       <EncounterPopup />
+      <NPCProximityIndicator />
+      <NPCChatModal />
 
       {/* Instructions */}
       <div className="absolute bottom-4 left-4 bg-black/50 backdrop-blur-sm rounded-lg px-4 py-3 text-white max-w-md">
@@ -50,6 +54,7 @@ function App() {
         <ul className="text-sm space-y-1">
           <li>• Move: WASD or Arrow Keys</li>
           <li>• Get close to other users to chat (150px radius)</li>
+          <li>• Get close to NPCs (robot icons) to start conversations 🤖</li>
           <li>• Click the chat button on the right to open chat panel</li>
           <li>• Your username appears above your dot</li>
         </ul>

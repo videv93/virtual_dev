@@ -116,6 +116,16 @@ export const NPCChatModal: React.FC = () => {
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // Stop propagation to prevent Phaser from capturing WASD keys
+    e.stopPropagation();
+  };
+
+  const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // Stop propagation to prevent Phaser from capturing WASD keys
+    e.stopPropagation();
+  };
+
   if (!activeNPC) return null;
 
   return (
@@ -219,6 +229,8 @@ export const NPCChatModal: React.FC = () => {
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
+              onKeyDown={handleKeyDown}
+              onKeyUp={handleKeyUp}
               placeholder="Type your message..."
               disabled={isLoading}
               className="flex-1 bg-gray-800 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 disabled:opacity-50"

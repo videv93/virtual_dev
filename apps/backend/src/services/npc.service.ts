@@ -1,44 +1,21 @@
-import Anthropic from '@anthropic-ai/sdk';
 import type { ConversationMessage, NPCConfig } from '@virtual-dev/shared';
 import { supabaseService } from './supabase.service';
+import { llmProvider } from './llm-provider';
 
 class NPCService {
-  private anthropic: Anthropic | null = null;
-  private readonly model = 'claude-3-5-sonnet-20241022';
-  private readonly maxTokens = 1024;
-
   constructor() {
-    this.initialize();
-  }
-
-  private initialize(): void {
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-
-    if (!apiKey || apiKey === 'your_api_key_here') {
-      console.warn('⚠️  Anthropic API key not found. NPC chat will be disabled.');
-      console.warn('   Set ANTHROPIC_API_KEY in .env to enable NPC conversations.');
-      return;
-    }
-
-    try {
-      this.anthropic = new Anthropic({
-        apiKey: apiKey,
-      });
-      console.log('✅ Anthropic Claude API client initialized');
-    } catch (error) {
-      console.error('❌ Failed to initialize Anthropic client:', error);
-    }
+    // LLM provider initializes itself
   }
 
   /**
-   * Check if Claude API is configured
+   * Check if NPC service is configured
    */
   public isConfigured(): boolean {
-    return this.anthropic !== null;
+    return llmProvider.isConfigured();
   }
 
   /**
-   * Chat with an NPC using Claude API
+   * Chat with an NPC using configured LLM provider
    */
   public async chat(
     npcId: string,
@@ -53,10 +30,10 @@ class NPCService {
     error?: string;
   }> {
     // Check if services are configured
-    if (!this.anthropic) {
+    if (!this.isConfigured()) {
       return {
         success: false,
-        error: 'NPC chat is not configured. Please set ANTHROPIC_API_KEY.',
+        error: 'NPC chat is not configured. Please set LLM API credentials.',
       };
     }
 
@@ -94,36 +71,19 @@ class NPCService {
       };
       conversationHistory.push(userMsg);
 
-      // Prepare messages for Claude API
-      const messages: Anthropic.MessageParam[] = conversationHistory.map(
-        (msg) => ({
-          role: msg.role,
-          content: msg.content,
-        })
-      );
-
-      // Call Claude API
+      // Call LLM API
       const startTime = Date.now();
-      const response = await this.anthropic.messages.create({
-        model: this.model,
-        max_tokens: this.maxTokens,
-        system: npc.systemPrompt,
-        messages: messages,
-      });
+      const response = await llmProvider.chat(conversationHistory, npc.systemPrompt);
 
       const responseTime = Date.now() - startTime;
       console.log(
-        `✅ Claude API response for ${npc.name} in ${responseTime}ms`
+        `✅ LLM response for ${npc.name} in ${responseTime}ms`
       );
-
-      // Extract assistant response
-      const assistantMessage =
-        response.content[0].type === 'text' ? response.content[0].text : '';
 
       // Add assistant message to history
       const assistantMsg: ConversationMessage = {
         role: 'assistant',
-        content: assistantMessage,
+        content: response.content,
         timestamp: Date.now(),
       };
       conversationHistory.push(assistantMsg);
@@ -138,7 +98,7 @@ class NPCService {
 
       return {
         success: true,
-        message: assistantMessage,
+        message: response.content,
         conversationId: newConversationId || undefined,
         npcName: npc.name,
       };
@@ -155,7 +115,7 @@ class NPCService {
   }
 
   /**
-   * Stream chat with an NPC using Claude API (for real-time responses)
+   * Stream chat with an NPC using configured LLM provider (for real-time responses)
    */
   public async streamChat(
     npcId: string,
@@ -170,10 +130,10 @@ class NPCService {
     error?: string;
   }> {
     // Check if services are configured
-    if (!this.anthropic) {
+    if (!this.isConfigured()) {
       return {
         success: false,
-        error: 'NPC chat is not configured. Please set ANTHROPIC_API_KEY.',
+        error: 'NPC chat is not configured. Please set LLM API credentials.',
       };
     }
 
@@ -211,35 +171,15 @@ class NPCService {
       };
       conversationHistory.push(userMsg);
 
-      // Prepare messages for Claude API
-      const messages: Anthropic.MessageParam[] = conversationHistory.map(
-        (msg) => ({
-          role: msg.role,
-          content: msg.content,
-        })
-      );
-
-      // Call Claude API with streaming
-      const stream = await this.anthropic.messages.create({
-        model: this.model,
-        max_tokens: this.maxTokens,
-        system: npc.systemPrompt,
-        messages: messages,
-        stream: true,
-      });
-
       // Collect full response
       let fullResponse = '';
 
       // Stream response
-      for await (const event of stream) {
-        if (
-          event.type === 'content_block_delta' &&
-          event.delta.type === 'text_delta'
-        ) {
-          const chunk = event.delta.text;
-          fullResponse += chunk;
-          onChunk(chunk);
+      const stream = llmProvider.streamChat(conversationHistory, npc.systemPrompt);
+      for await (const chunk of stream) {
+        if (chunk.type === 'content' && chunk.content) {
+          fullResponse += chunk.content;
+          onChunk(chunk.content);
         }
       }
 

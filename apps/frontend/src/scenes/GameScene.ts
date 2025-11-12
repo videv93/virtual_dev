@@ -87,7 +87,7 @@ export class GameScene extends Phaser.Scene {
     // Subscribe to user changes
     useGameStore.subscribe(() => {
       // If scene isn't ready yet, flag for rendering on next update
-      if (!this.add || !this.scene.isActive()) {
+      if (!this.add || !this.scene || !this.scene.isActive()) {
         this.needsRender = true;
         return;
       }
@@ -101,7 +101,7 @@ export class GameScene extends Phaser.Scene {
     if (!currentUser) return;
 
     // Check if scene is ready
-    if (!this.add || !this.scene.isActive()) return;
+    if (!this.add || !this.scene || !this.scene.isActive()) return;
 
     if (!this.currentUserSprite) {
       // Create sprite
@@ -139,7 +139,7 @@ export class GameScene extends Phaser.Scene {
     const currentUserId = useGameStore.getState().currentUser?.id;
 
     // Check if scene is ready
-    if (!this.add || !this.scene.isActive()) return;
+    if (!this.add || !this.scene || !this.scene.isActive()) return;
 
     // Remove sprites for users that left
     this.otherUsersSprites.forEach((value, userId) => {

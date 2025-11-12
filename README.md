@@ -17,13 +17,13 @@
 
 ### 🚀 Start Here
 
-1. **[QUICK_START.md](QUICK_START.md)** ⭐ START HERE
+1. **[QUICK_START.md](docs/QUICK_START.md)** ⭐ START HERE
    - Get running locally in 30 minutes
    - Step-by-step setup guide
    - Test chat and multi-user features
    - Perfect for: First-time developers
 
-2. **[project_summary.md](project_summary.md)** 
+2. **[project_summary.md](docs/project_summary.md)** 
    - Executive overview
    - Timeline and costs
    - Success metrics
@@ -31,7 +31,7 @@
 
 ### 📋 Planning & Management
 
-3. **[virtual_dev_agile_plan.md](virtual_dev_agile_plan.md)** 
+3. **[virtual_dev_agile_plan.md](docs/virtual_dev_agile_plan.md)** 
    - Complete 6-sprint plan (12 weeks)
    - 24 user stories with acceptance criteria
    - Sprint goals and velocities
@@ -44,7 +44,7 @@
    - All sprints, epics, and priorities
    - Perfect for: Setting up project board
 
-5. **[sprint_dashboard_template.md](sprint_dashboard_template.md)**
+5. **[sprint_dashboard_template.md](docs/sprint_dashboard_template.md)**
    - Daily tracking template
    - Burndown charts
    - Standup notes
@@ -53,7 +53,7 @@
 
 ### 🏗️ Technical Documentation
 
-6. **[virtual_dev_architecture.md](virtual_dev_architecture.md)**
+6. **[virtual_dev_architecture.md](docs/virtual_dev_architecture.md)**
    - System architecture diagram
    - Tech stack details
    - Data models and schemas
@@ -61,20 +61,20 @@
    - Performance optimizations
    - Perfect for: Developers, architects
 
-7. **[supabase_setup_guide.md](supabase_setup_guide.md)** 
+7. **[supabase_setup_guide.md](docs/supabase_setup_guide.md)** 
    - Complete Supabase setup walkthrough
    - Database table creation
    - Row-level security policies
    - Frontend integration code
    - Perfect for: Backend developers
 
-8. **[why_supabase_realtime.md](why_supabase_realtime.md)**
+8. **[why_supabase_realtime.md](docs/why_supabase_realtime.md)**
    - Comparison: Custom WebSocket vs Supabase
    - Cost analysis and benefits
    - Performance benchmarks
    - Perfect for: Technical decision makers
 
-9. **[phaser_guide.md](phaser_guide.md)** ⭐
+9. **[phaser_guide.md](docs/phaser_guide.md)** ⭐
    - Complete Phaser.js 3 implementation guide
    - Scene setup and structure
    - Input handling (keyboard, mouse, click-to-move)
@@ -83,63 +83,63 @@
    - Performance optimization techniques
    - Perfect for: Frontend developers building the game
 
-10. **[integration_guide.md](integration_guide.md)** ⭐ NEW
-   - **Complete integration of Phaser.js + Socket.io + Supabase**
-   - Zustand state management
-   - Socket.io for real-time movement
-   - Supabase Realtime for chat
-   - Proximity detection between systems
-   - Error handling and reconnection
-   - Performance optimization
-   - Testing checklist
-   - Perfect for: Developers integrating all systems
+10. **[integration_guide.md](docs/integration_guide.md)** ⭐ NEW
+    - **Complete integration of Phaser.js + Socket.io + Supabase**
+    - Zustand state management
+    - Socket.io for real-time movement
+    - Supabase Realtime for chat
+    - Proximity detection between systems
+    - Error handling and reconnection
+    - Performance optimization
+    - Testing checklist
+    - Perfect for: Developers integrating all systems
 
 ### 🛠️ Implementation Guides
 
-11. **[sprint1_implementation_checklist.md](sprint1_implementation_checklist.md)**
-   - Sprint 1 step-by-step guide
-   - Code templates and examples
-   - Testing checklist
-   - Common issues and solutions
-   - Perfect for: Developers starting Sprint 1
+11. **[sprint1_implementation_checklist.md](docs/sprint1_implementation_checklist.md)**
+    - Sprint 1 step-by-step guide
+    - Code templates and examples
+    - Testing checklist
+    - Common issues and solutions
+    - Perfect for: Developers starting Sprint 1
 
 ---
 
 ## 🗺️ Reading Path by Role
 
 ### 👨‍💼 Product Owner / Manager
-1. project_summary.md (overview)
-2. virtual_dev_agile_plan.md (detailed plan)
-3. why_supabase_realtime.md (tech decisions)
+1. [docs/project_summary.md](docs/project_summary.md) (overview)
+2. [docs/virtual_dev_agile_plan.md](docs/virtual_dev_agile_plan.md) (detailed plan)
+3. [docs/why_supabase_realtime.md](docs/why_supabase_realtime.md) (tech decisions)
 4. Import virtual_dev_jira_import.csv to project board
 
 ### 👨‍💻 Solo Developer
-1. QUICK_START.md (get running)
-2. sprint1_implementation_checklist.md (build Sprint 1)
-3. virtual_dev_architecture.md (reference)
-4. supabase_setup_guide.md (when needed)
+1. [docs/QUICK_START.md](docs/QUICK_START.md) (get running)
+2. [docs/sprint1_implementation_checklist.md](docs/sprint1_implementation_checklist.md) (build Sprint 1)
+3. [docs/virtual_dev_architecture.md](docs/virtual_dev_architecture.md) (reference)
+4. [docs/supabase_setup_guide.md](docs/supabase_setup_guide.md) (when needed)
 
 ### 👥 Development Team
 **Team Lead:**
-1. virtual_dev_agile_plan.md
-2. sprint_dashboard_template.md
+1. [docs/virtual_dev_agile_plan.md](docs/virtual_dev_agile_plan.md)
+2. [docs/sprint_dashboard_template.md](docs/sprint_dashboard_template.md)
 3. Import virtual_dev_jira_import.csv
 
 **Backend Developer:**
-1. virtual_dev_architecture.md
-2. supabase_setup_guide.md
-3. sprint1_implementation_checklist.md
+1. [docs/virtual_dev_architecture.md](docs/virtual_dev_architecture.md)
+2. [docs/supabase_setup_guide.md](docs/supabase_setup_guide.md)
+3. [docs/sprint1_implementation_checklist.md](docs/sprint1_implementation_checklist.md)
 
 **Frontend Developer:**
-1. QUICK_START.md
-2. phaser_guide.md (essential for 2D implementation)
-3. integration_guide.md (connecting all systems together)
-4. virtual_dev_architecture.md (frontend sections)
-5. sprint1_implementation_checklist.md
+1. [docs/QUICK_START.md](docs/QUICK_START.md)
+2. [docs/phaser_guide.md](docs/phaser_guide.md) (essential for 2D implementation)
+3. [docs/integration_guide.md](docs/integration_guide.md) (connecting all systems together)
+4. [docs/virtual_dev_architecture.md](docs/virtual_dev_architecture.md) (frontend sections)
+5. [docs/sprint1_implementation_checklist.md](docs/sprint1_implementation_checklist.md)
 
 ### 🏢 Hiring Manager / Recruiter
-1. project_summary.md (understand project)
-2. virtual_dev_agile_plan.md (scope and timeline)
+1. [docs/project_summary.md](docs/project_summary.md) (understand project)
+2. [docs/virtual_dev_agile_plan.md](docs/virtual_dev_agile_plan.md) (scope and timeline)
 3. Use docs to interview candidates
 
 ---
@@ -147,19 +147,19 @@
 ## ⚡ Quick Decision Matrix
 
 ### Want to build it yourself?
-→ Start with **QUICK_START.md**
+→ Start with **[docs/QUICK_START.md](docs/QUICK_START.md)**
 
 ### Want to hire a team?
-→ Read **project_summary.md** + **virtual_dev_agile_plan.md**
+→ Read **[docs/project_summary.md](docs/project_summary.md)** + **[docs/virtual_dev_agile_plan.md](docs/virtual_dev_agile_plan.md)**
 
 ### Want to understand the tech?
-→ Read **virtual_dev_architecture.md**
+→ Read **[docs/virtual_dev_architecture.md](docs/virtual_dev_architecture.md)**
 
 ### Want to validate the approach?
-→ Read **why_supabase_realtime.md**
+→ Read **[docs/why_supabase_realtime.md](docs/why_supabase_realtime.md)**
 
 ### Want to start Sprint 1?
-→ Follow **sprint1_implementation_checklist.md**
+→ Follow **[docs/sprint1_implementation_checklist.md](docs/sprint1_implementation_checklist.md)**
 
 ---
 
@@ -303,7 +303,7 @@
 ## ❓ Common Questions
 
 ### Q: Can I build this solo?
-**A:** Yes! Follow QUICK_START.md and sprint1_implementation_checklist.md.
+**A:** Yes! Follow [docs/QUICK_START.md](docs/QUICK_START.md) and [docs/sprint1_implementation_checklist.md](docs/sprint1_implementation_checklist.md).
 
 ### Q: How much coding experience needed?
 **A:** Intermediate JavaScript/TypeScript. Comfortable with React and Node.js.
@@ -328,14 +328,14 @@
 ## 🚦 Getting Started
 
 ### Option 1: Quick Start (30 mins)
-1. Read QUICK_START.md
+1. Read [docs/QUICK_START.md](docs/QUICK_START.md)
 2. Set up Supabase
 3. Run backend and frontend locally
 4. Test chat and multi-user
 
 ### Option 2: Full Planning (1 day)
-1. Read project_summary.md
-2. Review virtual_dev_agile_plan.md
+1. Read [docs/project_summary.md](docs/project_summary.md)
+2. Review [docs/virtual_dev_agile_plan.md](docs/virtual_dev_agile_plan.md)
 3. Import virtual_dev_jira_import.csv
 4. Schedule Sprint 1 planning
 
@@ -350,18 +350,18 @@
 ## 📞 Support
 
 ### Debugging Help
-- Check common issues in sprint1_implementation_checklist.md
+- Check common issues in [docs/sprint1_implementation_checklist.md](docs/sprint1_implementation_checklist.md)
 - Review error messages carefully
 - Test components individually
 - Use browser DevTools
 
 ### Architecture Questions
-- Reference virtual_dev_architecture.md
+- Reference [docs/virtual_dev_architecture.md](docs/virtual_dev_architecture.md)
 - Check Supabase documentation
 - Review code templates
 
 ### Process Questions
-- Reference virtual_dev_agile_plan.md
+- Reference [docs/virtual_dev_agile_plan.md](docs/virtual_dev_agile_plan.md)
 - Follow Scrum best practices
 - Adapt ceremonies to team size
 
@@ -371,7 +371,7 @@
 
 **Your next steps:**
 
-1. ⬜ Read QUICK_START.md
+1. ⬜ Read [docs/QUICK_START.md](docs/QUICK_START.md)
 2. ⬜ Set up development environment
 3. ⬜ Create Supabase project
 4. ⬜ Run backend and frontend

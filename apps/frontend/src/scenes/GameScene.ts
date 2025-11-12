@@ -18,7 +18,6 @@ export class GameScene extends Phaser.Scene {
   private positionUpdateTimer = 0;
   private readonly POSITION_UPDATE_INTERVAL = 100; // ms (10 updates per second)
   private needsRender = false;
-  private isSceneReady = false;
 
   constructor() {
     super({ key: 'GameScene' });
@@ -37,9 +36,6 @@ export class GameScene extends Phaser.Scene {
     // Initial render
     this.renderCurrentUser();
     this.renderOtherUsers();
-
-    // Mark scene as ready
-    this.isSceneReady = true;
   }
 
   private createMap(): void {

@@ -5,6 +5,7 @@ import {
   JoinResponse,
   MovePayload,
   PositionUpdatePayload,
+  ProximityPayload,
 } from '@virtual-dev/shared';
 import { useGameStore } from '../stores/gameStore';
 
@@ -79,6 +80,27 @@ class SocketService {
     // Position update
     this.socket.on(SocketEvents.POSITION_UPDATE, (payload: PositionUpdatePayload) => {
       useGameStore.getState().updateUserPosition(payload.userId, payload.position);
+    });
+
+    // Proximity enter
+    this.socket.on(SocketEvents.PROXIMITY_ENTER, (payload: ProximityPayload) => {
+      console.log('Proximity enter:', payload);
+      const { addNearbyUser, setEncounterUserId, currentUser } = useGameStore.getState();
+
+      // Add to nearby users
+      addNearbyUser(payload.targetId);
+
+      // Show encounter popup (only for the user who is being approached)
+      if (payload.userId === currentUser?.id) {
+        setEncounterUserId(payload.targetId);
+      }
+    });
+
+    // Proximity exit
+    this.socket.on(SocketEvents.PROXIMITY_EXIT, (payload: ProximityPayload) => {
+      console.log('Proximity exit:', payload);
+      const { removeNearbyUser } = useGameStore.getState();
+      removeNearbyUser(payload.targetId);
     });
 
     // Error handling

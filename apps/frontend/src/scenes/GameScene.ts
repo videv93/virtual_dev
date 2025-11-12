@@ -276,20 +276,25 @@ export class GameScene extends Phaser.Scene {
     const currentUser = useGameStore.getState().currentUser;
     if (!currentUser) return;
 
+    // Check if chat panel is open - if so, don't process movement input
+    const isChatPanelOpen = useGameStore.getState().isChatPanelOpen;
+
     let velocityX = 0;
     let velocityY = 0;
 
-    // Check input
-    if (this.cursors.left.isDown || this.wasd.A.isDown) {
-      velocityX = -1;
-    } else if (this.cursors.right.isDown || this.wasd.D.isDown) {
-      velocityX = 1;
-    }
+    // Check input only if chat panel is closed
+    if (!isChatPanelOpen) {
+      if (this.cursors.left.isDown || this.wasd.A.isDown) {
+        velocityX = -1;
+      } else if (this.cursors.right.isDown || this.wasd.D.isDown) {
+        velocityX = 1;
+      }
 
-    if (this.cursors.up.isDown || this.wasd.W.isDown) {
-      velocityY = -1;
-    } else if (this.cursors.down.isDown || this.wasd.S.isDown) {
-      velocityY = 1;
+      if (this.cursors.up.isDown || this.wasd.W.isDown) {
+        velocityY = -1;
+      } else if (this.cursors.down.isDown || this.wasd.S.isDown) {
+        velocityY = 1;
+      }
     }
 
     // Normalize diagonal movement

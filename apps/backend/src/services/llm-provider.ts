@@ -29,12 +29,15 @@ export class LLMProvider {
   private model: string;
   private apiKey: string;
   private maxTokens: number;
+  private initialized = false;
 
   constructor() {
-    this.initialize();
+    // Don't initialize in constructor - wait for first use
   }
 
   private initialize(): void {
+    if (this.initialized) return;
+    this.initialized = true;
     // Determine provider from env
     const providerEnv = (process.env.LLM_PROVIDER || 'anthropic').toLowerCase();
     this.provider = (providerEnv === 'openrouter' ? 'openrouter' : 'anthropic') as LLMProvider;
@@ -75,6 +78,7 @@ export class LLMProvider {
    * Check if LLM provider is configured
    */
   public isConfigured(): boolean {
+    this.initialize();
     return this.provider === 'anthropic' ? this.anthropicClient !== null : !!this.apiKey;
   }
 
@@ -85,6 +89,7 @@ export class LLMProvider {
     messages: ConversationMessage[],
     systemPrompt: string
   ): Promise<ChatResponse> {
+    this.initialize();
     if (!this.isConfigured()) {
       throw new Error(`LLM provider (${this.provider}) is not configured.`);
     }
@@ -108,6 +113,7 @@ export class LLMProvider {
     messages: ConversationMessage[],
     systemPrompt: string
   ): AsyncGenerator<StreamChunk> {
+    this.initialize();
     if (!this.isConfigured()) {
       throw new Error(`LLM provider (${this.provider}) is not configured.`);
     }
@@ -335,6 +341,7 @@ export class LLMProvider {
   }
 
   public getConfig(): LLMConfig {
+    this.initialize();
     return {
       provider: this.provider,
       model: this.model,

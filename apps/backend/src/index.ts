@@ -1,14 +1,15 @@
+import dotenv from 'dotenv';
+
+// Load environment variables FIRST before importing services
+dotenv.config();
+
 import express from 'express';
 import { createServer } from 'http';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import { redisService } from './services/redis.service';
 import { socketService } from './services/socket.service';
 import { npcService } from './services/npc.service';
 import type { NPCChatRequest } from '@virtual-dev/shared';
-
-// Load environment variables
-dotenv.config();
 
 const app = express();
 const httpServer = createServer(app);

@@ -9,12 +9,15 @@ import type {
 
 class SupabaseService {
   private client: SupabaseClient | null = null;
+  private initialized = false;
 
   constructor() {
-    this.initialize();
+    // Don't initialize in constructor - wait for first use
   }
 
   private initialize(): void {
+    if (this.initialized) return;
+    this.initialized = true;
     const supabaseUrl = process.env.SUPABASE_URL;
     const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
 
@@ -40,6 +43,7 @@ class SupabaseService {
    * Check if Supabase is configured
    */
   public isConfigured(): boolean {
+    this.initialize();
     return this.client !== null;
   }
 
@@ -47,6 +51,7 @@ class SupabaseService {
    * Get all NPCs from database
    */
   public async getNPCs(): Promise<NPCConfig[]> {
+    this.initialize();
     if (!this.client) {
       console.error('❌ Supabase client not initialized');
       return [];
@@ -88,6 +93,7 @@ class SupabaseService {
    * Get a specific NPC by ID
    */
   public async getNPCById(npcId: string): Promise<NPCConfig | null> {
+    this.initialize();
     if (!this.client) {
       return null;
     }
@@ -129,6 +135,7 @@ class SupabaseService {
     npcId: string,
     userId: string
   ): Promise<NPCConversation | null> {
+    this.initialize();
     if (!this.client) {
       return null;
     }
@@ -175,6 +182,7 @@ class SupabaseService {
     userId: string,
     messages: ConversationMessage[]
   ): Promise<string | null> {
+    this.initialize();
     if (!this.client) {
       return null;
     }
@@ -210,6 +218,7 @@ class SupabaseService {
     conversationId: string,
     messages: ConversationMessage[]
   ): Promise<boolean> {
+    this.initialize();
     if (!this.client) {
       return false;
     }
@@ -244,6 +253,7 @@ class SupabaseService {
     conversationId: string | null,
     newMessages: ConversationMessage[]
   ): Promise<string | null> {
+    this.initialize();
     if (!this.client) {
       return null;
     }

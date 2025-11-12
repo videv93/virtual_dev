@@ -17,6 +17,7 @@ export class GameScene extends Phaser.Scene {
   private lastPosition = { x: 0, y: 0 };
   private positionUpdateTimer = 0;
   private readonly POSITION_UPDATE_INTERVAL = 100; // ms (10 updates per second)
+  private needsRender = false;
 
   constructor() {
     super({ key: 'GameScene' });
@@ -85,6 +86,11 @@ export class GameScene extends Phaser.Scene {
   private setupStoreSubscription(): void {
     // Subscribe to user changes
     useGameStore.subscribe(() => {
+      // If scene isn't ready yet, flag for rendering on next update
+      if (!this.add || !this.scene.isActive()) {
+        this.needsRender = true;
+        return;
+      }
       this.renderCurrentUser();
       this.renderOtherUsers();
     });
@@ -93,6 +99,9 @@ export class GameScene extends Phaser.Scene {
   private renderCurrentUser(): void {
     const currentUser = useGameStore.getState().currentUser;
     if (!currentUser) return;
+
+    // Check if scene is ready
+    if (!this.add || !this.scene.isActive()) return;
 
     if (!this.currentUserSprite) {
       // Create sprite
@@ -128,6 +137,9 @@ export class GameScene extends Phaser.Scene {
   private renderOtherUsers(): void {
     const users = useGameStore.getState().users;
     const currentUserId = useGameStore.getState().currentUser?.id;
+
+    // Check if scene is ready
+    if (!this.add || !this.scene.isActive()) return;
 
     // Remove sprites for users that left
     this.otherUsersSprites.forEach((value, userId) => {
@@ -183,6 +195,13 @@ export class GameScene extends Phaser.Scene {
   }
 
   update(_time: number, delta: number): void {
+    // Handle deferred rendering
+    if (this.needsRender) {
+      this.needsRender = false;
+      this.renderCurrentUser();
+      this.renderOtherUsers();
+    }
+
     if (!this.currentUserSprite || !this.cursors || !this.wasd) return;
 
     const currentUser = useGameStore.getState().currentUser;

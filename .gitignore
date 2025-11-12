@@ -40,3 +40,4 @@ dump.rdb
 
 # OS
 Thumbs.db
+apps/frontend/.vite/deps

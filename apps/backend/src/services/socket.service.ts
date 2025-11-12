@@ -13,6 +13,7 @@ import {
 } from '@virtual-dev/shared';
 import { redisService } from './redis.service';
 import { proximityService } from './proximity.service';
+import { supabaseService } from './supabase.service';
 import { generateUsername, generateColor } from '../utils/username-generator';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -42,10 +43,13 @@ export class SocketService {
         const user = await this.handleJoin(socket, payload);
         const allUsers = await redisService.getAllUsers();
 
+        // Load NPCs from Supabase
+        const npcs = await supabaseService.getNPCs();
+
         const response: JoinResponse = {
           user,
           users: allUsers.filter((u) => u.id !== user.id),
-          npcs: [], // Will be loaded from Supabase in Sprint 4
+          npcs: npcs,
         };
 
         // Send user their info
@@ -55,6 +59,7 @@ export class SocketService {
         socket.broadcast.emit(SocketEvents.USER_JOINED, user);
 
         console.log(`👤 User joined: ${user.username} (${user.id})`);
+        console.log(`🤖 Sent ${npcs.length} NPCs to ${user.username}`);
       } catch (error) {
         console.error('Error handling join:', error);
         socket.emit(SocketEvents.ERROR, {

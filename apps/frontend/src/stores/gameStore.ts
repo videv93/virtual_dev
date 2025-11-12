@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { User, ChatMessage } from '@virtual-dev/shared';
+import { User, ChatMessage, NPCConfig } from '@virtual-dev/shared';
 
 interface GameState {
   // Current user
@@ -39,6 +39,21 @@ interface GameState {
   // Encounter popup state
   encounterUserId: string | null;
   setEncounterUserId: (userId: string | null) => void;
+
+  // NPCs
+  npcs: NPCConfig[];
+  setNPCs: (npcs: NPCConfig[]) => void;
+
+  // NPC Chat state
+  activeNPC: NPCConfig | null;
+  setActiveNPC: (npc: NPCConfig | null) => void;
+  npcConversationId: string | null;
+  setNPCConversationId: (id: string | null) => void;
+
+  // Nearby NPCs
+  nearbyNPCs: Set<string>;
+  addNearbyNPC: (npcId: string) => void;
+  removeNearbyNPC: (npcId: string) => void;
 }
 
 export const useGameStore = create<GameState>((set) => ({
@@ -111,4 +126,26 @@ export const useGameStore = create<GameState>((set) => ({
 
   encounterUserId: null,
   setEncounterUserId: (userId) => set({ encounterUserId: userId }),
+
+  npcs: [],
+  setNPCs: (npcs) => set({ npcs }),
+
+  activeNPC: null,
+  setActiveNPC: (npc) => set({ activeNPC: npc }),
+  npcConversationId: null,
+  setNPCConversationId: (id) => set({ npcConversationId: id }),
+
+  nearbyNPCs: new Set(),
+  addNearbyNPC: (npcId) =>
+    set((state) => {
+      const newNearbyNPCs = new Set(state.nearbyNPCs);
+      newNearbyNPCs.add(npcId);
+      return { nearbyNPCs: newNearbyNPCs };
+    }),
+  removeNearbyNPC: (npcId) =>
+    set((state) => {
+      const newNearbyNPCs = new Set(state.nearbyNPCs);
+      newNearbyNPCs.delete(npcId);
+      return { nearbyNPCs: newNearbyNPCs };
+    }),
 }));

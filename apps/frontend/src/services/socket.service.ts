@@ -55,7 +55,7 @@ class SocketService {
     // Join response
     this.socket.on(SocketEvents.JOIN, (response: JoinResponse) => {
       console.log('Joined successfully:', response);
-      const { setCurrentUser, setUsers, setSessionId } = useGameStore.getState();
+      const { setCurrentUser, setUsers, setSessionId, setNPCs } = useGameStore.getState();
 
       // Set current user and save session ID
       setCurrentUser(response.user);
@@ -63,6 +63,10 @@ class SocketService {
 
       // Set other users
       setUsers(response.users);
+
+      // Set NPCs
+      setNPCs(response.npcs);
+      console.log(`🤖 Loaded ${response.npcs.length} NPCs`);
     });
 
     // User joined

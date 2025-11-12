@@ -1,7 +1,8 @@
 import Anthropic from '@anthropic-ai/sdk';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import type { ConversationMessage } from '@virtual-dev/shared';
 
-export type LLMProvider = 'anthropic' | 'openrouter';
+export type LLMProvider = 'anthropic' | 'openrouter' | 'gemini';
 
 export interface LLMConfig {
   provider: LLMProvider;
@@ -21,32 +22,34 @@ export interface StreamChunk {
 }
 
 /**
- * Unified LLM provider interface supporting Anthropic and OpenRouter
+ * Unified LLM provider interface supporting Anthropic, OpenRouter, and Google Gemini
  */
 export class LLMProvider {
   private anthropicClient: Anthropic | null = null;
+  private geminiClient: GoogleGenerativeAI | null = null;
   private provider: LLMProvider;
   private model: string;
   private apiKey: string;
   private maxTokens: number;
-  private initialized = false;
 
   constructor() {
-    // Don't initialize in constructor - wait for first use
+    this.initialize();
   }
 
   private initialize(): void {
-    if (this.initialized) return;
-    this.initialized = true;
     // Determine provider from env
     const providerEnv = (process.env.LLM_PROVIDER || 'anthropic').toLowerCase();
-    this.provider = (providerEnv === 'openrouter' ? 'openrouter' : 'anthropic') as LLMProvider;
-
-    // Get API key and model based on provider
-    if (this.provider === 'openrouter') {
+    
+    if (providerEnv === 'openrouter') {
+      this.provider = 'openrouter';
       this.apiKey = process.env.OPENROUTER_API_KEY || '';
       this.model = process.env.OPENROUTER_MODEL || 'anthropic/claude-3-5-sonnet';
+    } else if (providerEnv === 'gemini') {
+      this.provider = 'gemini';
+      this.apiKey = process.env.GEMINI_API_KEY || '';
+      this.model = process.env.GEMINI_MODEL || 'gemini-1.5-pro';
     } else {
+      this.provider = 'anthropic';
       this.apiKey = process.env.ANTHROPIC_API_KEY || '';
       this.model = process.env.ANTHROPIC_MODEL || 'claude-3-5-sonnet-20241022';
     }
@@ -55,9 +58,11 @@ export class LLMProvider {
 
     if (!this.apiKey || this.apiKey === 'your_api_key_here') {
       console.warn(`⚠️  ${this.provider} API key not found. LLM chat will be disabled.`);
-      console.warn(
-        `   Set ${this.provider === 'openrouter' ? 'OPENROUTER_API_KEY' : 'ANTHROPIC_API_KEY'} in .env to enable NPC conversations.`
-      );
+      const envVar = 
+        this.provider === 'openrouter' ? 'OPENROUTER_API_KEY' :
+        this.provider === 'gemini' ? 'GEMINI_API_KEY' :
+        'ANTHROPIC_API_KEY';
+      console.warn(`   Set ${envVar} in .env to enable NPC conversations.`);
       return;
     }
 
@@ -65,6 +70,9 @@ export class LLMProvider {
       if (this.provider === 'anthropic') {
         this.anthropicClient = new Anthropic({ apiKey: this.apiKey });
         console.log('✅ Anthropic Claude API client initialized');
+      } else if (this.provider === 'gemini') {
+        this.geminiClient = new GoogleGenerativeAI(this.apiKey);
+        console.log(`✅ Google Gemini API client initialized (model: ${this.model})`);
       } else {
         console.log(`✅ OpenRouter API client initialized (model: ${this.model})`);
       }
@@ -78,18 +86,18 @@ export class LLMProvider {
    * Check if LLM provider is configured
    */
   public isConfigured(): boolean {
-    this.initialize();
-    return this.provider === 'anthropic' ? this.anthropicClient !== null : !!this.apiKey;
+    if (this.provider === 'anthropic') return this.anthropicClient !== null;
+    if (this.provider === 'gemini') return this.geminiClient !== null;
+    return !!this.apiKey; // OpenRouter
   }
 
   /**
-   * Chat completion - supports both Anthropic and OpenRouter
+   * Chat completion - supports Anthropic, OpenRouter, and Gemini
    */
   public async chat(
     messages: ConversationMessage[],
     systemPrompt: string
   ): Promise<ChatResponse> {
-    this.initialize();
     if (!this.isConfigured()) {
       throw new Error(`LLM provider (${this.provider}) is not configured.`);
     }
@@ -97,6 +105,8 @@ export class LLMProvider {
     try {
       if (this.provider === 'anthropic') {
         return this.chatAnthropic(messages, systemPrompt);
+      } else if (this.provider === 'gemini') {
+        return this.chatGemini(messages, systemPrompt);
       } else {
         return this.chatOpenRouter(messages, systemPrompt);
       }
@@ -107,13 +117,12 @@ export class LLMProvider {
   }
 
   /**
-   * Stream chat - supports both Anthropic and OpenRouter
+   * Stream chat - supports Anthropic, OpenRouter, and Gemini
    */
   public async *streamChat(
     messages: ConversationMessage[],
     systemPrompt: string
   ): AsyncGenerator<StreamChunk> {
-    this.initialize();
     if (!this.isConfigured()) {
       throw new Error(`LLM provider (${this.provider}) is not configured.`);
     }
@@ -121,6 +130,8 @@ export class LLMProvider {
     try {
       if (this.provider === 'anthropic') {
         yield* this.streamChatAnthropic(messages, systemPrompt);
+      } else if (this.provider === 'gemini') {
+        yield* this.streamChatGemini(messages, systemPrompt);
       } else {
         yield* this.streamChatOpenRouter(messages, systemPrompt);
       }
@@ -157,6 +168,46 @@ export class LLMProvider {
     return {
       content,
       stopReason: response.stop_reason,
+    };
+  }
+
+  /**
+   * Google Gemini API chat
+   */
+  private async chatGemini(
+    messages: ConversationMessage[],
+    systemPrompt: string
+  ): Promise<ChatResponse> {
+    if (!this.geminiClient) {
+      throw new Error('Gemini client not initialized');
+    }
+
+    const model = this.geminiClient.getGenerativeModel({ model: this.model });
+
+    // Convert messages to Gemini format
+    const geminiHistory = messages.map((msg) => ({
+      role: msg.role === 'user' ? 'user' : 'model',
+      parts: [{ text: msg.content }],
+    }));
+
+    // Start chat session with system prompt
+    const chat = model.startChat({
+      history: geminiHistory.slice(0, -1), // All but last message
+      systemInstruction: systemPrompt,
+    });
+
+    // Get the last user message
+    const lastMessage = messages[messages.length - 1];
+    if (!lastMessage || lastMessage.role !== 'user') {
+      throw new Error('Last message must be from user');
+    }
+
+    const response = await chat.sendMessage(lastMessage.content);
+    const content = response.response.text();
+
+    return {
+      content,
+      stopReason: response.response.candidates?.[0]?.finishReason || 'stop',
     };
   }
 
@@ -230,6 +281,52 @@ export class LLMProvider {
         yield {
           type: 'content',
           content: event.delta.text,
+        };
+      }
+    }
+
+    yield { type: 'done' };
+  }
+
+  /**
+   * Google Gemini streaming chat
+   */
+  private async *streamChatGemini(
+    messages: ConversationMessage[],
+    systemPrompt: string
+  ): AsyncGenerator<StreamChunk> {
+    if (!this.geminiClient) {
+      throw new Error('Gemini client not initialized');
+    }
+
+    const model = this.geminiClient.getGenerativeModel({ model: this.model });
+
+    // Convert messages to Gemini format
+    const geminiHistory = messages.map((msg) => ({
+      role: msg.role === 'user' ? 'user' : 'model',
+      parts: [{ text: msg.content }],
+    }));
+
+    // Start chat session with system prompt
+    const chat = model.startChat({
+      history: geminiHistory.slice(0, -1), // All but last message
+      systemInstruction: systemPrompt,
+    });
+
+    // Get the last user message
+    const lastMessage = messages[messages.length - 1];
+    if (!lastMessage || lastMessage.role !== 'user') {
+      throw new Error('Last message must be from user');
+    }
+
+    const stream = await chat.sendMessageStream(lastMessage.content);
+
+    for await (const chunk of stream.stream) {
+      const text = chunk.text();
+      if (text) {
+        yield {
+          type: 'content',
+          content: text,
         };
       }
     }
@@ -341,7 +438,6 @@ export class LLMProvider {
   }
 
   public getConfig(): LLMConfig {
-    this.initialize();
     return {
       provider: this.provider,
       model: this.model,

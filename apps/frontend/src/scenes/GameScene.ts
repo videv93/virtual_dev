@@ -18,7 +18,6 @@ export class GameScene extends Phaser.Scene {
   private lastPosition = { x: 0, y: 0 };
   private positionUpdateTimer = 0;
   private readonly POSITION_UPDATE_INTERVAL = 100; // ms (10 updates per second)
-  private needsRender = false;
 
   constructor() {
     super({ key: 'GameScene' });
@@ -86,9 +85,9 @@ export class GameScene extends Phaser.Scene {
   }
 
   private setupStoreSubscription(): void {
-    // Subscribe to user changes - always defer to update loop to avoid race conditions
+    // Subscribe to store changes - not used for rendering, just to ensure scene stays in sync
     useGameStore.subscribe(() => {
-      this.needsRender = true;
+      // Store changes are handled by always rendering in the update loop
     });
   }
 
@@ -268,13 +267,10 @@ export class GameScene extends Phaser.Scene {
   }
 
   update(_time: number, delta: number): void {
-    // Handle deferred rendering
-    if (this.needsRender) {
-      this.needsRender = false;
-      this.renderCurrentUser();
-      this.renderOtherUsers();
-      this.renderNPCs();
-    }
+    // Always render on every frame
+    this.renderCurrentUser();
+    this.renderOtherUsers();
+    this.renderNPCs();
 
     if (!this.currentUserSprite || !this.cursors || !this.wasd) return;
 

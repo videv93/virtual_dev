@@ -276,14 +276,14 @@ export class GameScene extends Phaser.Scene {
     const currentUser = useGameStore.getState().currentUser;
     if (!currentUser) return;
 
-    // Check if chat panel is open - if so, don't process movement input
-    const isChatPanelOpen = useGameStore.getState().isChatPanelOpen;
+    // Check if NPC chat modal is open - if so, don't process movement input
+    const activeNPC = useGameStore.getState().activeNPC;
 
     let velocityX = 0;
     let velocityY = 0;
 
-    // Check input only if chat panel is closed
-    if (!isChatPanelOpen) {
+    // Check input only if NPC chat modal is closed
+    if (!activeNPC) {
       if (this.cursors.left.isDown || this.wasd.A.isDown) {
         velocityX = -1;
       } else if (this.cursors.right.isDown || this.wasd.D.isDown) {

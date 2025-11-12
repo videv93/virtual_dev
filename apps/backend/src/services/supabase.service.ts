@@ -48,19 +48,23 @@ class SupabaseService {
    */
   public async getNPCs(): Promise<NPCConfig[]> {
     if (!this.client) {
+      console.error('❌ Supabase client not initialized');
       return [];
     }
 
     try {
+      console.log('📥 Fetching NPCs from Supabase...');
       const { data, error } = await this.client
         .from('npc_configs')
         .select('*')
         .order('created_at', { ascending: true });
 
       if (error) {
-        console.error('Error fetching NPCs:', error);
+        console.error('❌ Error fetching NPCs:', error);
         return [];
       }
+
+      console.log(`✅ Fetched ${data?.length || 0} NPCs:`, data);
 
       // Transform Supabase data to NPCConfig format
       return (data as SupabaseNPCConfig[]).map((npc) => ({
@@ -75,7 +79,7 @@ class SupabaseService {
         iconUrl: npc.icon_url,
       }));
     } catch (error) {
-      console.error('Error fetching NPCs:', error);
+      console.error('❌ Exception fetching NPCs:', error);
       return [];
     }
   }

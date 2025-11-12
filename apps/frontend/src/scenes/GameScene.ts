@@ -187,6 +187,7 @@ export class GameScene extends Phaser.Scene {
   private renderNPCs(): void {
     const npcs = useGameStore.getState().npcs;
     const currentUser = useGameStore.getState().currentUser;
+    console.log(`🤖 renderNPCs called with ${npcs.length} NPCs`);
 
     // Remove sprites for NPCs that no longer exist
     this.npcSprites.forEach((value, npcId) => {

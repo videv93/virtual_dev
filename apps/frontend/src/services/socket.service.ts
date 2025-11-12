@@ -65,8 +65,15 @@ class SocketService {
       setUsers(response.users);
 
       // Set NPCs
+      console.log(`🤖 Received NPCs from server:`, response.npcs);
       setNPCs(response.npcs);
       console.log(`🤖 Loaded ${response.npcs.length} NPCs`);
+      
+      // Debug: Log store state after setting NPCs
+      setTimeout(() => {
+        const { npcs } = useGameStore.getState();
+        console.log(`🤖 NPCs in store after setState:`, npcs);
+      }, 100);
     });
 
     // User joined

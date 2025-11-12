@@ -1,0 +1,102 @@
+Summary,Issue Type,Priority,Story Points,Sprint,Epic,Description,Acceptance Criteria
+Anonymous User Entry,Story,Highest,3,Sprint 1,Core Platform Infrastructure,"As a visitor, I want to instantly access the platform without registration so that I can quickly explore the virtual space","- User visits virtual-dev.com and immediately enters
+- Random username generated (e.g., Dev_1234, Coder_5678)
+- No login or signup required
+- Session ID stored in localStorage for reconnection"
+Random Username Generation,Story,Highest,2,Sprint 1,Core Platform Infrastructure,"As a user, I want an automatically generated username so that I can be identified in the virtual space","- Username format: [Adjective]_[Noun]_[Number]
+- Username displayed above user's dot
+- Username persisted during session
+- Collision-free username generation"
+Basic 2D Map Display,Story,Highest,8,Sprint 1,Core Platform Infrastructure,"As a user, I want to see a 2D map environment immediately so that I can visualize the virtual space","- Map renders instantly on page load
+- Map has boundaries and visual grid/texture
+- User's position shown as colored dot
+- Map is responsive to window size"
+WebSocket Connection,Story,Highest,5,Sprint 1,Core Platform Infrastructure,"As a user, I want real-time connection to the server so that my actions sync instantly","- WebSocket establishes immediately on page load
+- Connection status indicator shown
+- Automatic reconnection on disconnect
+- Heartbeat mechanism implemented"
+Session Persistence,Story,High,3,Sprint 1,Core Platform Infrastructure,"As a user, I want to keep my username if I refresh so that I don't lose my identity during the session","- Session ID stored in localStorage
+- Same username restored on refresh/reconnect
+- Session expires after 24 hours
+- New session generates new username"
+Avatar Movement Controls,Story,Highest,8,Sprint 2,User Movement & Interaction,"As a user, I want to move my avatar using keyboard/mouse so that I can navigate the virtual space","- WASD or Arrow keys move avatar
+- Click-to-move with mouse works
+- Movement is smooth (interpolated)
+- Avatar cannot move outside boundaries"
+Real-time Position Sync,Story,Highest,8,Sprint 2,User Movement & Interaction,"As a user, I want my position to sync with other users so that others can see where I am","- Position updates broadcast to all users
+- Updates throttled (max 10/second)
+- Smooth interpolation for remote users
+- Position persisted on disconnect"
+Multi-user Display,Story,Highest,5,Sprint 2,User Movement & Interaction,"As a user, I want to see other users on the map so that I know who else is online","- Other users shown as colored dots
+- Username label appears on hover
+- Different colors for different users
+- Smooth animation when users move"
+Collision Detection,Story,High,3,Sprint 2,User Movement & Interaction,"As a user, I want collision detection with boundaries so that I cannot move through walls","- Avatar stops at map boundaries
+- (Future: collision with objects)
+- Smooth collision response"
+Proximity Detection,Story,Highest,8,Sprint 3,User Movement & Interaction,"As a user, I want to know when I'm near another user/NPC so that I can interact with them","- Proximity radius defined (e.g., 100px)
+- Visual indicator when in proximity
+- Proximity events triggered accurately
+- Performance optimized (spatial indexing)"
+Side Panel Chat UI,Story,Highest,5,Sprint 3,Chat System,"As a user, I want a persistent chat panel so that I can see conversation history","- Chat panel on right side (collapsible)
+- Shows active conversations
+- Scrollable message history
+- Shows online user list"
+User-to-User Messaging (Supabase Realtime),Story,Highest,5,Sprint 3,Chat System,"As a user, I want to send messages to nearby users so that I can communicate","- Can send text messages via Supabase
+- Messages appear in real-time using Supabase Realtime
+- Shows sender username and timestamp
+- Messages persist in Supabase database
+- Supabase Realtime subscriptions for live updates"
+Encounter Popup UI,Story,High,3,Sprint 3,Chat System,"As a user, I want a popup when encountering someone so that I'm notified of interactions","- Popup appears at center-bottom
+- Shows who you encountered
+- Dismissable with X button
+- Auto-dismiss after 5 seconds"
+NPC Placement System,Story,Highest,5,Sprint 4,NPC Agent System,"As an admin, I want to place NPCs on the map so that users can find and interact with them","- NPCs displayed with unique icons/colors
+- NPCs have fixed positions
+- NPCs show name label
+- NPCs visible to all users"
+NPC Conversation Trigger,Story,Highest,5,Sprint 4,NPC Agent System,"As a user, I want to start conversation when near NPC so that I can get AI assistance","- Popup appears when entering NPC proximity
+- Shows NPC name and role description
+- Start Conversation button available
+- Opens dedicated chat interface"
+Claude API Integration with Supabase,Story,Highest,13,Sprint 4,NPC Agent System,"As a user, I want NPCs to respond intelligently so that I get helpful developer assistance","- NPC responses generated via Claude API
+- Context maintained during conversation
+- Response time < 3 seconds
+- Error handling for API failures
+- Conversation history stored in Supabase"
+NPC Personality System,Story,High,5,Sprint 4,NPC Agent System,"As a user, I want NPCs to have distinct personalities so that different NPCs serve different purposes","- Each NPC has system prompt defining role
+- Roles: Code Reviewer, Debug Helper, Career Mentor
+- Consistent personality in responses
+- Role visible in NPC description"
+User Onboarding,Story,High,5,Sprint 5,User Experience & Polish,"As a new user, I want guided onboarding so that I understand how to use the platform","- Tutorial overlay on first login
+- Shows movement controls
+- Explains NPC interactions
+- Skippable with checkbox"
+Optional Username Customization,Story,High,5,Sprint 5,User Experience & Polish,"As a user, I want to optionally customize my username so that I can have a more personal identity","- Can change username in settings (stored in localStorage)
+- Username must be unique in current session
+- Avatar color customization available
+- Changes persist for current session only"
+Map Navigation Controls,Story,High,5,Sprint 5,User Experience & Polish,"As a user, I want intuitive map controls so that I can navigate easily","- Zoom in/out functionality
+- Pan/drag map with mouse
+- Mini-map overview
+- Reset view button"
+Performance Optimization,Story,Highest,8,Sprint 5,User Experience & Polish,"As a user, I want smooth performance so that the experience is enjoyable","- 60fps rendering maintained
+- Network payload optimized
+- Lazy loading for distant entities
+- Memory leaks fixed"
+Error Handling & Feedback,Story,Highest,3,Sprint 5,User Experience & Polish,"As a user, I want clear error messages so that I understand what went wrong","- Toast notifications for errors
+- Graceful handling of disconnections
+- Loading states for async operations
+- Helpful error messages"
+Security & Rate Limiting,Story,Highest,5,Sprint 6,User Experience & Polish,"As a product owner, I want security measures in place so that the platform is protected from abuse","- XSS protection implemented
+- Rate limiting on WebSocket and API endpoints
+- HTTPS enforced
+- Input sanitization for usernames and chat"
+Mobile Responsiveness,Story,High,13,Sprint 6,User Experience & Polish,"As a mobile user, I want the platform to work on mobile so that I can access it anywhere","- Responsive layout for mobile screens
+- Touch controls for movement
+- Mobile-optimized chat UI
+- Tested on iOS and Android"
+Admin Dashboard,Story,High,8,Sprint 6,User Experience & Polish,"As an admin, I want a dashboard to manage the platform so that I can monitor and configure","- View active users
+- Manage NPC configurations
+- View system metrics
+- Moderate chat content"

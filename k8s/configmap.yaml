@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: virtual-dev-config
+  namespace: virtual-dev
+data:
+  # Backend configuration
+  NODE_ENV: "production"
+  PORT: "3001"
+
+  # Frontend configuration
+  VITE_API_URL: "https://api.virtual-dev.example.com"
+  VITE_WS_URL: "wss://api.virtual-dev.example.com"
+
+  # Supabase configuration (non-sensitive)
+  SUPABASE_URL: "https://your-project.supabase.co"
+
+  # Redis configuration
+  REDIS_HOST: "redis-service"
+  REDIS_PORT: "6379"
+
+  # Application settings
+  MAX_USERS_PER_ROOM: "100"
+  MESSAGE_RATE_LIMIT: "10"
+  CORS_ORIGIN: "https://virtual-dev.example.com"

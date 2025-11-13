@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: virtual-dev-frontend
+  namespace: virtual-dev
+  labels:
+    app: virtual-dev
+    component: frontend
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+    name: http
+  selector:
+    app: virtual-dev
+    component: frontend

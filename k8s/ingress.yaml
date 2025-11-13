@@ -1,0 +1,65 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: virtual-dev-ingress
+  namespace: virtual-dev
+  labels:
+    app: virtual-dev
+  annotations:
+    # Use cert-manager for automatic TLS certificate management
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+
+    # Nginx ingress specific annotations
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+
+    # WebSocket support for backend
+    nginx.ingress.kubernetes.io/websocket-services: "virtual-dev-backend"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+
+    # Rate limiting
+    nginx.ingress.kubernetes.io/limit-rps: "100"
+
+    # CORS headers (if needed)
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://virtual-dev.example.com"
+
+    # Security headers
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      add_header X-Frame-Options "SAMEORIGIN" always;
+      add_header X-Content-Type-Options "nosniff" always;
+      add_header X-XSS-Protection "1; mode=block" always;
+      add_header Referrer-Policy "no-referrer-when-downgrade" always;
+
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - virtual-dev.example.com
+    - api.virtual-dev.example.com
+    secretName: virtual-dev-tls
+  rules:
+  # Frontend
+  - host: virtual-dev.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: virtual-dev-frontend
+            port:
+              number: 80
+  # Backend API
+  - host: api.virtual-dev.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: virtual-dev-backend
+            port:
+              number: 3001

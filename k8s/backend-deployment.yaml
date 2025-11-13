@@ -1,0 +1,114 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: virtual-dev-backend
+  namespace: virtual-dev
+  labels:
+    app: virtual-dev
+    component: backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: virtual-dev
+      component: backend
+  template:
+    metadata:
+      labels:
+        app: virtual-dev
+        component: backend
+    spec:
+      containers:
+      - name: backend
+        image: ghcr.io/your-username/virtual-dev/backend:latest
+        imagePullPolicy: Always
+        ports:
+        - name: http
+          containerPort: 3001
+          protocol: TCP
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: virtual-dev-config
+              key: NODE_ENV
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: virtual-dev-config
+              key: PORT
+        - name: SUPABASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: virtual-dev-config
+              key: SUPABASE_URL
+        - name: SUPABASE_SERVICE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: virtual-dev-secrets
+              key: SUPABASE_SERVICE_KEY
+        - name: SUPABASE_ANON_KEY
+          valueFrom:
+            secretKeyRef:
+              name: virtual-dev-secrets
+              key: SUPABASE_ANON_KEY
+        - name: ANTHROPIC_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: virtual-dev-secrets
+              key: ANTHROPIC_API_KEY
+        - name: REDIS_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: virtual-dev-config
+              key: REDIS_HOST
+        - name: REDIS_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: virtual-dev-config
+              key: REDIS_PORT
+        - name: CORS_ORIGIN
+          valueFrom:
+            configMapKeyRef:
+              name: virtual-dev-config
+              key: CORS_ORIGIN
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3001
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3001
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+      imagePullSecrets:
+      - name: ghcr-secret
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ghcr-secret
+  namespace: virtual-dev
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: <base64-encoded-docker-config>
+  # To create this secret:
+  # kubectl create secret docker-registry ghcr-secret \
+  #   --docker-server=ghcr.io \
+  #   --docker-username=<github-username> \
+  #   --docker-password=<github-token> \
+  #   --namespace=virtual-dev

@@ -1,0 +1,86 @@
+name: Deploy to Kubernetes
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        type: choice
+        options:
+          - development
+          - staging
+          - production
+      version:
+        description: 'Image version/tag to deploy'
+        required: true
+        default: 'latest'
+
+jobs:
+  deploy:
+    name: Deploy to ${{ github.event.inputs.environment }}
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Configure kubectl
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Verify cluster connection
+        run: kubectl cluster-info
+
+      - name: Set image version
+        run: |
+          echo "IMAGE_TAG=${{ github.event.inputs.version }}" >> $GITHUB_ENV
+
+      - name: Deploy to Kubernetes
+        run: |
+          # Update image tags in deployment files
+          sed -i "s|image:.*backend.*|image: ghcr.io/${{ github.repository }}/backend:${{ env.IMAGE_TAG }}|g" k8s/backend-deployment.yaml
+          sed -i "s|image:.*frontend.*|image: ghcr.io/${{ github.repository }}/frontend:${{ env.IMAGE_TAG }}|g" k8s/frontend-deployment.yaml
+
+          # Apply Kubernetes manifests
+          kubectl apply -f k8s/namespace.yaml
+          kubectl apply -f k8s/configmap.yaml
+          kubectl apply -f k8s/secrets.yaml
+          kubectl apply -f k8s/backend-deployment.yaml
+          kubectl apply -f k8s/backend-service.yaml
+          kubectl apply -f k8s/frontend-deployment.yaml
+          kubectl apply -f k8s/frontend-service.yaml
+          kubectl apply -f k8s/ingress.yaml
+
+          # Wait for deployments to roll out
+          kubectl rollout status deployment/virtual-dev-backend -n virtual-dev --timeout=5m
+          kubectl rollout status deployment/virtual-dev-frontend -n virtual-dev --timeout=5m
+
+      - name: Verify deployment
+        run: |
+          kubectl get pods -n virtual-dev
+          kubectl get services -n virtual-dev
+          kubectl get ingress -n virtual-dev
+
+      - name: Run smoke tests
+        run: |
+          echo "Running smoke tests..."
+          # Add your smoke test commands here
+          # Example: curl checks, health endpoint verification, etc.
+
+      - name: Notify deployment status
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ Deployment to ${{ github.event.inputs.environment }} succeeded!"
+          else
+            echo "❌ Deployment to ${{ github.event.inputs.environment }} failed!"
+          fi

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: virtual-dev
+  labels:
+    app: virtual-dev
+    environment: production

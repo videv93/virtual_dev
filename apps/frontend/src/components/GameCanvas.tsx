@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react';
 import Phaser from 'phaser';
 import { GameScene } from '../scenes/GameScene';
-import { MAP_WIDTH, MAP_HEIGHT } from '@virtual-dev/shared';
 
 export function GameCanvas() {
   const gameRef = useRef<Phaser.Game | null>(null);
@@ -11,8 +10,8 @@ export function GameCanvas() {
 
     const config: Phaser.Types.Core.GameConfig = {
       type: Phaser.AUTO,
-      width: MAP_WIDTH,
-      height: MAP_HEIGHT,
+      width: window.innerWidth,
+      height: window.innerHeight,
       parent: 'game-container',
       backgroundColor: '#1a1a2e',
       scene: [GameScene],
@@ -23,14 +22,24 @@ export function GameCanvas() {
         },
       },
       scale: {
-        mode: Phaser.Scale.FIT,
+        mode: Phaser.Scale.RESIZE,
         autoCenter: Phaser.Scale.CENTER_BOTH,
       },
     };
 
+    // Handle window resize
+    const handleResize = () => {
+      if (gameRef.current) {
+        gameRef.current.scale.resize(window.innerWidth, window.innerHeight);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+
     gameRef.current = new Phaser.Game(config);
 
     return () => {
+      window.removeEventListener('resize', handleResize);
       if (gameRef.current) {
         gameRef.current.destroy(true);
         gameRef.current = null;
@@ -41,7 +50,7 @@ export function GameCanvas() {
   return (
     <div
       id="game-container"
-      className="flex items-center justify-center w-full h-full"
+      className="w-screen h-screen absolute inset-0"
     />
   );
 }

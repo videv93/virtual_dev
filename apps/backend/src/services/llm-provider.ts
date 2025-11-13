@@ -5,10 +5,10 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-export type LLMProvider = 'anthropic' | 'openrouter' | 'gemini';
+export type LLMProviderType = 'anthropic' | 'openrouter' | 'gemini';
 
 export interface LLMConfig {
-  provider: LLMProvider;
+  provider: LLMProviderType;
   model: string;
   apiKey: string;
   maxTokens: number;
@@ -30,7 +30,7 @@ export interface StreamChunk {
 export class LLMProvider {
   private anthropicClient: Anthropic | null = null;
   private geminiClient: GoogleGenerativeAI | null = null;
-  private provider: LLMProvider;
+  private provider: LLMProviderType;
   private model: string;
   private apiKey: string;
   private maxTokens: number;
@@ -195,8 +195,8 @@ export class LLMProvider {
 
     // Start chat session with system prompt
     const chat = model.startChat({
-      history: geminiHistory.slice(0, -1), // All but last message
-      systemInstruction: { parts: [{ text: systemPrompt }] },
+      history: geminiHistory.slice(0, -1) as any, // All but last message
+      systemInstruction: { parts: [{ text: systemPrompt }] } as any,
     });
 
     // Get the last user message
@@ -247,7 +247,7 @@ export class LLMProvider {
       throw new Error(`OpenRouter API error: ${JSON.stringify(error)}`);
     }
 
-    const data = await response.json();
+    const data = await response.json() as any;
     const content = data.choices[0].message.content;
     return {
       content,
@@ -312,8 +312,8 @@ export class LLMProvider {
 
     // Start chat session with system prompt
     const chat = model.startChat({
-      history: geminiHistory.slice(0, -1), // All but last message
-      systemInstruction: { parts: [{ text: systemPrompt }] },
+      history: geminiHistory.slice(0, -1) as any, // All but last message
+      systemInstruction: { parts: [{ text: systemPrompt }] } as any,
     });
 
     // Get the last user message

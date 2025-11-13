@@ -38,7 +38,7 @@ export const AdminDashboard: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [users, setUsers] = useState<ActiveUser[]>([]);
-  const [metrics, setMetrics] = useState<SystemMetrics | null>(null);
+  // const [metrics, setMetrics] = useState<SystemMetrics | null>(null);
   const [health, setHealth] = useState<HealthStatus | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -114,7 +114,7 @@ export const AdminDashboard: React.FC = () => {
 
       if (metricsRes.ok) {
         const metricsData = await metricsRes.json();
-        setMetrics(metricsData.metrics);
+        // setMetrics(metricsData.metrics);
       }
 
       // Fetch health

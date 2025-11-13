@@ -83,6 +83,26 @@ export class RedisService {
     const key = `user:${userId}`;
     await this.client.expire(key, this.sessionExpirySeconds);
   }
+
+  async getSession(userId: string): Promise<{ connectedAt: number; lastActivity: number } | null> {
+    if (!this.client) throw new Error('Redis client not connected');
+
+    const key = `session:${userId}`;
+    const data = await this.client.get(key);
+
+    return data ? JSON.parse(data) : null;
+  }
+
+  async deleteSession(userId: string): Promise<void> {
+    if (!this.client) throw new Error('Redis client not connected');
+
+    const key = `session:${userId}`;
+    await this.client.del(key);
+  }
+
+  isConnected(): boolean {
+    return this.client !== null && this.client.isOpen;
+  }
 }
 
 export const redisService = new RedisService(

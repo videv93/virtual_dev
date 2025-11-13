@@ -19,6 +19,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 export class SocketService {
   private io: SocketIOServer | null = null;
+  private totalConnections = 0;
 
   initialize(httpServer: HTTPServer): void {
     this.io = new SocketIOServer(httpServer, {
@@ -29,6 +30,7 @@ export class SocketService {
     });
 
     this.io.on(SocketEvents.CONNECTION, (socket: Socket) => {
+      this.totalConnections++;
       console.log(`🔌 User connected: ${socket.id}`);
       this.handleConnection(socket);
     });
@@ -228,6 +230,42 @@ export class SocketService {
       throw new Error('Socket.io not initialized');
     }
     return this.io;
+  }
+
+  /**
+   * Admin methods
+   */
+  getConnectedUsers(): Map<string, User> {
+    const users = new Map<string, User>();
+    if (!this.io) return users;
+
+    const sockets = Array.from(this.io.sockets.sockets.values());
+    for (const socket of sockets) {
+      if (socket.data.userId) {
+        redisService.getUser(socket.data.userId).then((user) => {
+          if (user) {
+            users.set(user.id, user);
+          }
+        });
+      }
+    }
+    return users;
+  }
+
+  getTotalConnections(): number {
+    return this.totalConnections;
+  }
+
+  getSocketByUserId(userId: string): Socket | null {
+    if (!this.io) return null;
+
+    const sockets = Array.from(this.io.sockets.sockets.values());
+    return sockets.find((s) => s.data.userId === userId) || null;
+  }
+
+  broadcastAdminMessage(message: string): void {
+    if (!this.io) return;
+    this.io.emit('admin-message', { message });
   }
 }
 

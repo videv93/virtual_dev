@@ -57,8 +57,8 @@ export const MapControls: React.FC = () => {
         </svg>
       </button>
 
-      {/* Help Text */}
-      <div className="bg-gray-800/90 backdrop-blur-sm rounded-lg px-3 py-2 text-xs text-gray-300 max-w-[200px] shadow-lg">
+      {/* Help Text - Desktop Only */}
+      <div className="hidden md:block bg-gray-800/90 backdrop-blur-sm rounded-lg px-3 py-2 text-xs text-gray-300 max-w-[200px] shadow-lg">
         <p className="font-semibold mb-1">Map Controls:</p>
         <ul className="space-y-1">
           <li>• Mouse wheel: Zoom</li>

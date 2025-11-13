@@ -27,6 +27,12 @@ export class GameScene extends Phaser.Scene {
   private readonly MAX_ZOOM = 2;
   private readonly ZOOM_STEP = 0.1;
 
+  // Touch controls for mobile
+  private touchVelocity = { x: 0, y: 0 };
+  private touchStartPos = { x: 0, y: 0 };
+  private isTouchMovement = false;
+  private readonly TOUCH_DEAD_ZONE = 20; // Minimum distance before registering as movement
+
   constructor() {
     super({ key: 'GameScene' });
   }
@@ -93,6 +99,42 @@ export class GameScene extends Phaser.Scene {
         D: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
       };
     }
+
+    // Touch controls for mobile
+    this.setupTouchControls();
+  }
+
+  private setupTouchControls(): void {
+    this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+      // Only register touch if it's a primary pointer (not middle/right click)
+      if (!pointer.rightButtonDown() && !pointer.middleButtonDown()) {
+        this.isTouchMovement = true;
+        this.touchStartPos = { x: pointer.x, y: pointer.y };
+      }
+    });
+
+    this.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
+      if (this.isTouchMovement) {
+        const deltaX = pointer.x - this.touchStartPos.x;
+        const deltaY = pointer.y - this.touchStartPos.y;
+        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+        if (distance > this.TOUCH_DEAD_ZONE) {
+          // Normalize the direction
+          this.touchVelocity.x = deltaX / distance;
+          this.touchVelocity.y = deltaY / distance;
+        } else {
+          this.touchVelocity.x = 0;
+          this.touchVelocity.y = 0;
+        }
+      }
+    });
+
+    this.input.on('pointerup', () => {
+      this.isTouchMovement = false;
+      this.touchVelocity.x = 0;
+      this.touchVelocity.y = 0;
+    });
   }
 
   private setupCameraControls(): void {
@@ -359,6 +401,7 @@ export class GameScene extends Phaser.Scene {
 
     // Check input only if NPC chat modal is closed
     if (!activeNPC) {
+      // Keyboard controls
       if (this.cursors.left.isDown || this.wasd.A.isDown) {
         velocityX = -1;
       } else if (this.cursors.right.isDown || this.wasd.D.isDown) {
@@ -369,6 +412,12 @@ export class GameScene extends Phaser.Scene {
         velocityY = -1;
       } else if (this.cursors.down.isDown || this.wasd.S.isDown) {
         velocityY = 1;
+      }
+
+      // Touch controls (mobile) - only if no keyboard input
+      if (velocityX === 0 && velocityY === 0 && this.isTouchMovement) {
+        velocityX = this.touchVelocity.x;
+        velocityY = this.touchVelocity.y;
       }
     }
 

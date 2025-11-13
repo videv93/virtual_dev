@@ -74,10 +74,9 @@ export function ChatPanel() {
 
   return (
     <div
-      className={`fixed top-0 right-0 h-screen bg-gray-900 border-l border-gray-700 shadow-2xl transition-transform duration-300 z-10 ${
+      className={`fixed top-0 right-0 h-screen bg-gray-900 border-l border-gray-700 shadow-2xl transition-transform duration-300 z-10 w-full md:w-[350px] ${
         isChatPanelOpen ? 'translate-x-0' : 'translate-x-full'
       }`}
-      style={{ width: '350px' }}
     >
       {/* Header */}
       <div className="bg-gray-800 p-4 border-b border-gray-700 flex items-center justify-between">
@@ -211,7 +210,7 @@ export function ChatPanel() {
       {!isChatPanelOpen && (
         <button
           onClick={toggleChatPanel}
-          className="absolute -left-12 top-4 bg-blue-600 hover:bg-blue-700 text-white rounded-l-lg p-3 shadow-lg transition-colors"
+          className="fixed right-4 bottom-20 md:absolute md:-left-12 md:top-4 md:right-auto md:bottom-auto bg-blue-600 hover:bg-blue-700 text-white rounded-lg md:rounded-l-lg p-3 shadow-lg transition-colors"
           aria-label="Open chat panel"
         >
           <svg

@@ -6,21 +6,53 @@ dotenv.config();
 import express from 'express';
 import { createServer } from 'http';
 import cors from 'cors';
+import helmet from 'helmet';
 import { redisService } from './services/redis.service';
 import { socketService } from './services/socket.service';
 import { npcService } from './services/npc.service';
+import { adminService } from './services/admin.service';
 import type { NPCChatRequest } from '@virtual-dev/shared';
+import {
+  apiLimiter,
+  npcChatLimiter,
+  sanitizeInput,
+  xssProtection,
+  validateChatMessage,
+  validateNpcId,
+} from './middleware/security.middleware';
 
 const app = express();
 const httpServer = createServer(app);
 const PORT = process.env.PORT || 3001;
 
-// Middleware
+// Security Middleware
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'", process.env.CORS_ORIGIN || 'http://localhost:5173'],
+      fontSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'none'"],
+    },
+  },
+  crossOriginEmbedderPolicy: false,
+}));
+
+// CORS Configuration
 app.use(cors({
   origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
   credentials: true,
 }));
-app.use(express.json());
+
+// Body Parser & Input Sanitization
+app.use(express.json({ limit: '10mb' }));
+app.use(sanitizeInput);
+app.use(xssProtection);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -30,8 +62,8 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API routes
-app.get('/api/status', (req, res) => {
+// API routes (with rate limiting)
+app.get('/api/status', apiLimiter, (req, res) => {
   res.json({
     message: 'Virtual Dev Backend API',
     version: '1.0.0',
@@ -39,7 +71,7 @@ app.get('/api/status', (req, res) => {
 });
 
 // NPC Chat endpoint (non-streaming)
-app.post('/api/npc/chat', async (req, res) => {
+app.post('/api/npc/chat', npcChatLimiter, validateNpcId, validateChatMessage, async (req, res) => {
   try {
     const { npcId, message, conversationId, userId } = req.body as NPCChatRequest & { userId: string };
 
@@ -78,7 +110,7 @@ app.post('/api/npc/chat', async (req, res) => {
 });
 
 // NPC Chat endpoint (streaming)
-app.post('/api/npc/chat/stream', async (req, res) => {
+app.post('/api/npc/chat/stream', npcChatLimiter, validateNpcId, validateChatMessage, async (req, res) => {
   try {
     const { npcId, message, conversationId, userId } = req.body as NPCChatRequest & { userId: string };
 
@@ -136,6 +168,96 @@ app.post('/api/npc/chat/stream', async (req, res) => {
       })}\n\n`
     );
     res.end();
+  }
+});
+
+// Admin routes (simple auth with password for demo purposes)
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
+
+const checkAdminAuth = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    res.status(401).json({ success: false, error: 'Unauthorized' });
+    return;
+  }
+
+  const token = authHeader.substring(7);
+  if (token !== ADMIN_PASSWORD) {
+    res.status(403).json({ success: false, error: 'Forbidden' });
+    return;
+  }
+
+  next();
+};
+
+// Admin endpoints
+app.get('/api/admin/users', apiLimiter, checkAdminAuth, async (req, res) => {
+  try {
+    const users = await adminService.getActiveUsers();
+    res.json({ success: true, users });
+  } catch (error) {
+    console.error('Error getting users:', error);
+    res.status(500).json({ success: false, error: 'Internal server error' });
+  }
+});
+
+app.get('/api/admin/metrics', apiLimiter, checkAdminAuth, (req, res) => {
+  try {
+    const metrics = adminService.getSystemMetrics();
+    res.json({ success: true, metrics });
+  } catch (error) {
+    console.error('Error getting metrics:', error);
+    res.status(500).json({ success: false, error: 'Internal server error' });
+  }
+});
+
+app.get('/api/admin/health', apiLimiter, checkAdminAuth, async (req, res) => {
+  try {
+    const health = await adminService.getHealthStatus();
+    res.json({ success: true, health });
+  } catch (error) {
+    console.error('Error getting health:', error);
+    res.status(500).json({ success: false, error: 'Internal server error' });
+  }
+});
+
+app.post('/api/admin/kick', apiLimiter, checkAdminAuth, async (req, res) => {
+  try {
+    const { userId, reason } = req.body;
+
+    if (!userId) {
+      res.status(400).json({ success: false, error: 'userId is required' });
+      return;
+    }
+
+    const result = await adminService.kickUser(userId, reason);
+
+    if (result) {
+      res.json({ success: true, message: 'User kicked successfully' });
+    } else {
+      res.status(404).json({ success: false, error: 'User not found' });
+    }
+  } catch (error) {
+    console.error('Error kicking user:', error);
+    res.status(500).json({ success: false, error: 'Internal server error' });
+  }
+});
+
+app.post('/api/admin/broadcast', apiLimiter, checkAdminAuth, (req, res) => {
+  try {
+    const { message } = req.body;
+
+    if (!message) {
+      res.status(400).json({ success: false, error: 'message is required' });
+      return;
+    }
+
+    adminService.broadcastMessage(message);
+    res.json({ success: true, message: 'Broadcast sent successfully' });
+  } catch (error) {
+    console.error('Error broadcasting message:', error);
+    res.status(500).json({ success: false, error: 'Internal server error' });
   }
 });
 

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { User, ChatMessage, NPCConfig } from '@virtual-dev/shared';
+import { User, ChatMessage, NPCConfig, Toast, ToastType } from '@virtual-dev/shared';
 
 interface GameState {
   // Current user
@@ -16,6 +16,10 @@ interface GameState {
   // Connection status
   isConnected: boolean;
   setIsConnected: (connected: boolean) => void;
+
+  // Loading state
+  isLoading: boolean;
+  setIsLoading: (loading: boolean) => void;
 
   // Session ID for persistence
   sessionId: string | null;
@@ -54,6 +58,11 @@ interface GameState {
   nearbyNPCs: Set<string>;
   addNearbyNPC: (npcId: string) => void;
   removeNearbyNPC: (npcId: string) => void;
+
+  // Toast notifications
+  toasts: Toast[];
+  addToast: (type: ToastType, message: string, duration?: number) => void;
+  removeToast: (id: string) => void;
 }
 
 export const useGameStore = create<GameState>((set) => ({
@@ -92,6 +101,9 @@ export const useGameStore = create<GameState>((set) => ({
 
   isConnected: false,
   setIsConnected: (connected) => set({ isConnected: connected }),
+
+  isLoading: true,
+  setIsLoading: (loading) => set({ isLoading: loading }),
 
   sessionId: localStorage.getItem('virtual-dev-session-id'),
   setSessionId: (id) => {
@@ -148,4 +160,16 @@ export const useGameStore = create<GameState>((set) => ({
       newNearbyNPCs.delete(npcId);
       return { nearbyNPCs: newNearbyNPCs };
     }),
+
+  toasts: [],
+  addToast: (type, message, duration = 3000) =>
+    set((state) => {
+      const id = `toast-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      const newToast: Toast = { id, type, message, duration };
+      return { toasts: [...state.toasts, newToast] };
+    }),
+  removeToast: (id) =>
+    set((state) => ({
+      toasts: state.toasts.filter((toast) => toast.id !== id),
+    })),
 }));

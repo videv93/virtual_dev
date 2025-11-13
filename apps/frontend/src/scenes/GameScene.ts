@@ -19,6 +19,14 @@ export class GameScene extends Phaser.Scene {
   private positionUpdateTimer = 0;
   private readonly POSITION_UPDATE_INTERVAL = 100; // ms (10 updates per second)
 
+  // Camera controls
+  private isDragging = false;
+  private dragStartX = 0;
+  private dragStartY = 0;
+  private readonly MIN_ZOOM = 0.5;
+  private readonly MAX_ZOOM = 2;
+  private readonly ZOOM_STEP = 0.1;
+
   constructor() {
     super({ key: 'GameScene' });
   }
@@ -29,6 +37,9 @@ export class GameScene extends Phaser.Scene {
 
     // Set up input
     this.setupInput();
+
+    // Set up camera controls
+    this.setupCameraControls();
 
     // Subscribe to game store changes
     this.setupStoreSubscription();
@@ -82,6 +93,70 @@ export class GameScene extends Phaser.Scene {
         D: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
       };
     }
+  }
+
+  private setupCameraControls(): void {
+    // Set camera bounds to the map size
+    this.cameras.main.setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT);
+
+    // Mouse wheel zoom
+    this.input.on('wheel', (_pointer: Phaser.Input.Pointer, _gameObjects: any, _deltaX: number, deltaY: number) => {
+      const currentZoom = this.cameras.main.zoom;
+      let newZoom = currentZoom;
+
+      if (deltaY > 0) {
+        // Zoom out
+        newZoom = Math.max(this.MIN_ZOOM, currentZoom - this.ZOOM_STEP);
+      } else {
+        // Zoom in
+        newZoom = Math.min(this.MAX_ZOOM, currentZoom + this.ZOOM_STEP);
+      }
+
+      this.cameras.main.setZoom(newZoom);
+    });
+
+    // Mouse drag to pan
+    this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+      // Only allow dragging with middle mouse button or right click
+      if (pointer.rightButtonDown() || pointer.middleButtonDown()) {
+        this.isDragging = true;
+        this.dragStartX = pointer.x;
+        this.dragStartY = pointer.y;
+      }
+    });
+
+    this.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
+      if (this.isDragging) {
+        const deltaX = (pointer.x - this.dragStartX) / this.cameras.main.zoom;
+        const deltaY = (pointer.y - this.dragStartY) / this.cameras.main.zoom;
+
+        this.cameras.main.scrollX -= deltaX;
+        this.cameras.main.scrollY -= deltaY;
+
+        this.dragStartX = pointer.x;
+        this.dragStartY = pointer.y;
+      }
+    });
+
+    this.input.on('pointerup', () => {
+      this.isDragging = false;
+    });
+
+    // Expose zoom methods globally for UI controls
+    (window as any).phaserZoomIn = () => {
+      const newZoom = Math.min(this.MAX_ZOOM, this.cameras.main.zoom + this.ZOOM_STEP);
+      this.cameras.main.setZoom(newZoom);
+    };
+
+    (window as any).phaserZoomOut = () => {
+      const newZoom = Math.max(this.MIN_ZOOM, this.cameras.main.zoom - this.ZOOM_STEP);
+      this.cameras.main.setZoom(newZoom);
+    };
+
+    (window as any).phaserResetView = () => {
+      this.cameras.main.setZoom(1);
+      this.cameras.main.centerOn(MAP_WIDTH / 2, MAP_HEIGHT / 2);
+    };
   }
 
   private setupStoreSubscription(): void {
@@ -313,10 +388,11 @@ export class GameScene extends Phaser.Scene {
     newX = Phaser.Math.Clamp(newX, radius, MAP_WIDTH - radius);
     newY = Phaser.Math.Clamp(newY, radius, MAP_HEIGHT - radius);
 
-    // Update position locally
-    currentUser.position.x = newX;
-    currentUser.position.y = newY;
-    useGameStore.getState().setCurrentUser(currentUser);
+    // Update position locally (create new object to trigger React re-renders)
+    useGameStore.getState().setCurrentUser({
+      ...currentUser,
+      position: { x: newX, y: newY }
+    });
 
     // Check NPC proximity on every frame
     this.checkNPCProximity();

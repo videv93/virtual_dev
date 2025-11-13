@@ -39,26 +39,36 @@ class SocketService {
     // Connection events
     this.socket.on('connect', () => {
       console.log('✅ Connected to server');
-      useGameStore.getState().setIsConnected(true);
+      const { setIsConnected, addToast } = useGameStore.getState();
+      setIsConnected(true);
+      addToast('success', 'Connected to server');
     });
 
     this.socket.on('disconnect', () => {
       console.log('❌ Disconnected from server');
-      useGameStore.getState().setIsConnected(false);
+      const { setIsConnected, addToast } = useGameStore.getState();
+      setIsConnected(false);
+      addToast('warning', 'Disconnected from server. Attempting to reconnect...');
     });
 
     this.socket.on('connect_error', (error) => {
       console.error('Connection error:', error);
-      useGameStore.getState().setIsConnected(false);
+      const { setIsConnected, addToast } = useGameStore.getState();
+      setIsConnected(false);
+      addToast('error', 'Connection error. Please check your network.');
     });
 
     // Join response
     this.socket.on(SocketEvents.JOIN, (response: JoinResponse) => {
       console.log('Joined successfully:', response);
-      const { setCurrentUser, setUsers, setSessionId, setNPCs } = useGameStore.getState();
+      const { setCurrentUser, setUsers, setSessionId, setNPCs, setIsLoading } = useGameStore.getState();
+
+      // Apply custom color from localStorage if available
+      const customColor = localStorage.getItem('virtual-dev-custom-color');
+      const user = customColor ? { ...response.user, color: customColor } : response.user;
 
       // Set current user and save session ID
-      setCurrentUser(response.user);
+      setCurrentUser(user);
       setSessionId(response.user.id);
 
       // Set other users
@@ -68,7 +78,10 @@ class SocketService {
       console.log(`🤖 Received NPCs from server:`, response.npcs);
       setNPCs(response.npcs);
       console.log(`🤖 Loaded ${response.npcs.length} NPCs`);
-      
+
+      // Set loading to false - we're ready!
+      setIsLoading(false);
+
       // Debug: Log store state after setting NPCs
       setTimeout(() => {
         const { npcs } = useGameStore.getState();
@@ -117,12 +130,14 @@ class SocketService {
     // Error handling
     this.socket.on(SocketEvents.ERROR, (error) => {
       console.error('Server error:', error);
+      useGameStore.getState().addToast('error', error.message || 'An error occurred');
     });
   }
 
   join(username?: string): void {
     if (!this.socket) {
       console.error('Socket not connected');
+      useGameStore.getState().addToast('error', 'Cannot connect to server');
       return;
     }
 

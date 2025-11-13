@@ -1,5 +1,6 @@
 import { createClient, SupabaseClient, RealtimeChannel } from '@supabase/supabase-js';
 import { ChatMessage, SupabaseChatMessage } from '@virtual-dev/shared';
+import { useGameStore } from '../stores/gameStore';
 
 class SupabaseService {
   private client: SupabaseClient | null = null;
@@ -64,12 +65,14 @@ class SupabaseService {
 
       if (error) {
         console.error('Error sending message:', error);
+        useGameStore.getState().addToast('error', 'Failed to send message');
         return null;
       }
 
       return this.convertSupabaseMessage(data as SupabaseChatMessage);
     } catch (error) {
       console.error('Error sending message:', error);
+      useGameStore.getState().addToast('error', 'Failed to send message');
       return null;
     }
   }
@@ -92,6 +95,7 @@ class SupabaseService {
 
       if (error) {
         console.error('Error loading messages:', error);
+        useGameStore.getState().addToast('error', 'Failed to load chat history');
         return [];
       }
 
@@ -100,6 +104,7 @@ class SupabaseService {
         .reverse(); // Reverse to get chronological order
     } catch (error) {
       console.error('Error loading messages:', error);
+      useGameStore.getState().addToast('error', 'Failed to load chat history');
       return [];
     }
   }
@@ -139,6 +144,7 @@ class SupabaseService {
           console.log('✅ Subscribed to chat messages');
         } else if (status === 'CHANNEL_ERROR') {
           console.error('❌ Error subscribing to chat messages');
+          useGameStore.getState().addToast('error', 'Failed to connect to real-time chat');
         }
       });
   }

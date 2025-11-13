@@ -388,10 +388,11 @@ export class GameScene extends Phaser.Scene {
     newX = Phaser.Math.Clamp(newX, radius, MAP_WIDTH - radius);
     newY = Phaser.Math.Clamp(newY, radius, MAP_HEIGHT - radius);
 
-    // Update position locally
-    currentUser.position.x = newX;
-    currentUser.position.y = newY;
-    useGameStore.getState().setCurrentUser(currentUser);
+    // Update position locally (create new object to trigger React re-renders)
+    useGameStore.getState().setCurrentUser({
+      ...currentUser,
+      position: { x: newX, y: newY }
+    });
 
     // Check NPC proximity on every frame
     this.checkNPCProximity();

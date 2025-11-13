@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import { useGameStore } from '../stores/gameStore';
-import { NPCConfig } from '@virtual-dev/shared';
 
 interface Message {
   role: 'user' | 'assistant';

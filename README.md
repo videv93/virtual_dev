@@ -100,6 +100,26 @@
     - Testing checklist
     - Perfect for: Developers integrating all systems
 
+### 🚀 Deployment & DevOps
+
+11. **[kubernetes_helm_guide.md](kubernetes_helm_guide.md)** ⭐ NEW
+   - **Complete Helm charts for Kubernetes deployment**
+   - Full chart templates (Deployment, Service, Ingress, HPA)
+   - Production-ready configurations
+   - Redis StatefulSet for session cache
+   - Auto-scaling setup
+   - Cost estimates for GKE, EKS, DigitalOcean
+   - Perfect for: DevOps engineers, deployment to production
+
+12. **[cicd_github_actions_guide.md](cicd_github_actions_guide.md)** ⭐ NEW
+   - **Complete CI/CD pipeline with GitHub Actions**
+   - Automated builds and tests
+   - Docker image building and pushing
+   - Multi-environment deployments (dev, staging, prod)
+   - Rollback strategies
+   - Security scanning
+   - Perfect for: Setting up automated deployments
+
 ### 🛠️ Implementation Guides
 
 12. **[sprint1_implementation_checklist.md](docs/sprint1_implementation_checklist.md)**

@@ -30,10 +30,10 @@ export interface StreamChunk {
 export class LLMProvider {
   private anthropicClient: Anthropic | null = null;
   private geminiClient: GoogleGenerativeAI | null = null;
-  private provider: LLMProviderType;
-  private model: string;
-  private apiKey: string;
-  private maxTokens: number;
+  private provider: LLMProviderType = 'anthropic';
+  private model: string = '';
+  private apiKey: string = '';
+  private maxTokens: number = 1024;
 
   constructor() {
     this.initialize();
@@ -170,7 +170,7 @@ export class LLMProvider {
     const content = response.content[0].type === 'text' ? response.content[0].text : '';
     return {
       content,
-      stopReason: response.stop_reason,
+      stopReason: response.stop_reason || 'stop',
     };
   }
 

@@ -9,18 +9,6 @@ interface ActiveUser {
   lastActivity: number;
 }
 
-interface SystemMetrics {
-  activeUsers: number;
-  totalConnections: number;
-  uptime: number;
-  memoryUsage: {
-    rss: number;
-    heapTotal: number;
-    heapUsed: number;
-    external: number;
-  };
-}
-
 interface HealthStatus {
   status: string;
   uptime: number;
@@ -113,8 +101,8 @@ export const AdminDashboard: React.FC = () => {
       });
 
       if (metricsRes.ok) {
-        const metricsData = await metricsRes.json();
-        // setMetrics(metricsData.metrics);
+        await metricsRes.json();
+        // TODO: use metrics if needed
       }
 
       // Fetch health

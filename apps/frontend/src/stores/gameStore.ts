@@ -63,6 +63,15 @@ interface GameState {
   toasts: Toast[];
   addToast: (type: ToastType, message: string, duration?: number) => void;
   removeToast: (id: string) => void;
+
+  // Stars
+  stars: Map<string, { id: string; position: { x: number; y: number }; createdAt: number }>;
+  addStar: (star: { id: string; position: { x: number; y: number }; createdAt: number }) => void;
+  removeStar: (starId: string) => void;
+  collectedStarsCount: number;
+  incrementCollectedStars: () => void;
+  showStarPopup: boolean;
+  setShowStarPopup: (show: boolean) => void;
 }
 
 export const useGameStore = create<GameState>((set) => ({
@@ -172,4 +181,25 @@ export const useGameStore = create<GameState>((set) => ({
     set((state) => ({
       toasts: state.toasts.filter((toast) => toast.id !== id),
     })),
+
+  stars: new Map(),
+  addStar: (star) =>
+    set((state) => {
+      const newStars = new Map(state.stars);
+      newStars.set(star.id, star);
+      return { stars: newStars };
+    }),
+  removeStar: (starId) =>
+    set((state) => {
+      const newStars = new Map(state.stars);
+      newStars.delete(starId);
+      return { stars: newStars };
+    }),
+  collectedStarsCount: 0,
+  incrementCollectedStars: () =>
+    set((state) => ({
+      collectedStarsCount: state.collectedStarsCount + 1,
+    })),
+  showStarPopup: false,
+  setShowStarPopup: (show) => set({ showStarPopup: show }),
 }));

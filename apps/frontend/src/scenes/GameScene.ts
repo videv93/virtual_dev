@@ -15,9 +15,15 @@ export class GameScene extends Phaser.Scene {
   private currentUserText?: Phaser.GameObjects.Text;
   private otherUsersSprites: Map<string, { sprite: Phaser.GameObjects.Arc; text: Phaser.GameObjects.Text }> = new Map();
   private npcSprites: Map<string, { sprite: Phaser.GameObjects.Graphics; text: Phaser.GameObjects.Text; nameText: Phaser.GameObjects.Text }> = new Map();
+  private starSprites: Map<string, Phaser.GameObjects.Graphics> = new Map();
   private lastPosition = { x: 0, y: 0 };
   private positionUpdateTimer = 0;
   private readonly POSITION_UPDATE_INTERVAL = 100; // ms (10 updates per second)
+
+  // Star spawning
+  private starSpawnTimer = 0;
+  private readonly STAR_SPAWN_INTERVAL = 60000; // 60 seconds = 1 minute
+  private readonly STAR_LIFETIME = 60000; // 60 seconds = 1 minute
 
   // Camera controls
   private isDragging = false;
@@ -54,6 +60,10 @@ export class GameScene extends Phaser.Scene {
     this.renderCurrentUser();
     this.renderOtherUsers();
     this.renderNPCs();
+    this.renderStars();
+
+    // Spawn first star immediately
+    this.spawnStar();
   }
 
   private createMap(): void {
@@ -382,11 +392,124 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
+  private renderStars(): void {
+    const stars = useGameStore.getState().stars;
+
+    // Remove sprites for stars that no longer exist
+    this.starSprites.forEach((sprite, starId) => {
+      if (!stars.has(starId)) {
+        sprite.destroy();
+        this.starSprites.delete(starId);
+      }
+    });
+
+    // Add or update sprites for stars
+    stars.forEach((star) => {
+      const existing = this.starSprites.get(star.id);
+
+      if (!existing) {
+        // Create star sprite
+        const graphics = this.add.graphics();
+        this.drawStar(graphics, star.position.x, star.position.y);
+        this.starSprites.set(star.id, graphics);
+      }
+    });
+  }
+
+  private drawStar(graphics: Phaser.GameObjects.Graphics, x: number, y: number): void {
+    const points = 5;
+    const outerRadius = 15;
+    const innerRadius = 7;
+
+    graphics.fillStyle(0xffff00, 1); // Yellow color
+    graphics.lineStyle(2, 0xffa500, 1); // Orange border
+
+    graphics.beginPath();
+    for (let i = 0; i < points * 2; i++) {
+      const angle = (Math.PI / points) * i - Math.PI / 2;
+      const radius = i % 2 === 0 ? outerRadius : innerRadius;
+      const pointX = x + Math.cos(angle) * radius;
+      const pointY = y + Math.sin(angle) * radius;
+
+      if (i === 0) {
+        graphics.moveTo(pointX, pointY);
+      } else {
+        graphics.lineTo(pointX, pointY);
+      }
+    }
+    graphics.closePath();
+    graphics.fillPath();
+    graphics.strokePath();
+  }
+
+  private spawnStar(): void {
+    // Generate random position on the map
+    const x = Phaser.Math.Between(50, MAP_WIDTH - 50);
+    const y = Phaser.Math.Between(50, MAP_HEIGHT - 50);
+
+    const starId = `star-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const star = {
+      id: starId,
+      position: { x, y },
+      createdAt: Date.now(),
+    };
+
+    useGameStore.getState().addStar(star);
+
+    // Set timer to remove star after lifetime
+    this.time.delayedCall(this.STAR_LIFETIME, () => {
+      useGameStore.getState().removeStar(starId);
+    });
+  }
+
+  private checkStarCollision(): void {
+    const currentUser = useGameStore.getState().currentUser;
+    if (!currentUser) return;
+
+    const stars = useGameStore.getState().stars;
+    const { incrementCollectedStars, setShowStarPopup, removeStar } = useGameStore.getState();
+
+    stars.forEach((star) => {
+      const distance = Phaser.Math.Distance.Between(
+        currentUser.position.x,
+        currentUser.position.y,
+        star.position.x,
+        star.position.y
+      );
+
+      // Collection radius (player radius + star size)
+      const collectionRadius = 15 + 15; // player radius + star radius
+
+      if (distance <= collectionRadius) {
+        // Star collected!
+        incrementCollectedStars();
+        removeStar(star.id);
+        setShowStarPopup(true);
+
+        // Auto-hide popup after 2 seconds
+        setTimeout(() => {
+          setShowStarPopup(false);
+        }, 2000);
+      }
+    });
+  }
+
   update(_time: number, delta: number): void {
     // Always render on every frame
     this.renderCurrentUser();
     this.renderOtherUsers();
     this.renderNPCs();
+    this.renderStars();
+
+    // Star spawning timer
+    this.starSpawnTimer += delta;
+    if (this.starSpawnTimer >= this.STAR_SPAWN_INTERVAL) {
+      this.spawnStar();
+      this.starSpawnTimer = 0;
+    }
+
+    // Check star collision
+    this.checkStarCollision();
 
     if (!this.currentUserSprite || !this.cursors || !this.wasd) return;
 

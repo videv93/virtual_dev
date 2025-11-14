@@ -11,6 +11,7 @@ import { MapControls } from './components/MapControls';
 import { MiniMap } from './components/MiniMap';
 import ToastContainer from './components/ToastContainer';
 import { AdminDashboard } from './components/AdminDashboard';
+import { StarCollectionPopup } from './components/StarCollectionPopup';
 import { socketService } from './services/socket.service';
 import { supabaseService } from './services/supabase.service';
 import { useGameStore } from './stores/gameStore';
@@ -78,6 +79,7 @@ function App() {
       <OnboardingTutorial />
       <ToastContainer />
       <AdminDashboard />
+      <StarCollectionPopup />
 
       {/* Instructions - hidden on mobile */}
       <div className="hidden md:block absolute bottom-4 left-4 bg-black/50 backdrop-blur-sm rounded-lg px-4 py-3 text-white max-w-md">
@@ -86,6 +88,7 @@ function App() {
           <li>• Move: WASD or Arrow Keys</li>
           <li>• Get close to other users to chat (150px radius)</li>
           <li>• Get close to NPCs (robot icons) to start conversations 🤖</li>
+          <li>• Collect falling stars for rewards! ⭐</li>
           <li>• Click the chat button on the right to open chat panel</li>
           <li>• Your username appears above your dot</li>
         </ul>
@@ -93,7 +96,7 @@ function App() {
 
       {/* Mobile Instructions */}
       <div className="md:hidden absolute bottom-4 left-4 right-4 bg-black/50 backdrop-blur-sm rounded-lg px-3 py-2 text-white text-xs">
-        <p>👆 Touch & drag to move • Get close to others to chat • Tap NPCs to talk 🤖</p>
+        <p>👆 Touch & drag to move • Get close to others to chat • Tap NPCs to talk 🤖 • Collect stars ⭐</p>
       </div>
     </div>
   );
